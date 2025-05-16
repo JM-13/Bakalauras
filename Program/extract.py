@@ -10,7 +10,7 @@ class Extract:
         self.file_programs = {}
 
         self.filename = filename
-        self.File_Lines = [(), (),]
+        self.File_Lines = [(0, ""),]
 
         if self.filename:
             with open(self.filename, 'r') as infile:
@@ -69,6 +69,7 @@ class Extract:
         #Skip_lines = 0           - how many lines to pass after "Line_start_identifier" before starting to save them
         #Needed_row_elements = [] - which values in the row of the file table are needed; if it is set then "Column_names" and "Row_value_types" need to be set accordingly
         #with_line_numbers=False  - if the line numbers from which the rows are saved should also be saved
+
         self.Coordinates = []
         Table = [] #Stores rows before they are turned into a dataframe
 
@@ -77,47 +78,46 @@ class Extract:
             Column_names = ['Line Number'] + Column_names
         Skip = Skip_lines
 
-        Check = False
+
         Save_as_row = False
-        for line_number, line in self.File_Lines:
-            if Save_as_row:
-                if Skip > 0:
-                    Skip -= 1
+        for program_start in self.file_programs[Program_identifier]:
+            for i in range(program_start, self.File_len):
+                line_number, line = self.File_Lines[i]
+
+                if Save_as_row:
+                    if Skip > 0:
+                        Skip -= 1
+                        continue
+                    if Line_end_identifier in line:
+                        df = pd.DataFrame(Table, columns=Column_names)
+                        self.Coordinates.append(df)
+
+                        Save_as_row = False
+                        Skip = Skip_lines
+                        Table = []
+                        break
+
+                    raw_row = line.split() #Convert string into a list; spaces in string differentiate between values
+                    if Needed_row_elements:
+                        row = [raw_row[i] for i in Needed_row_elements]
+                    else:
+                        row = raw_row
+
+                    for elem in range(Row_element_number):
+                        row[elem] = Row_value_types[elem](row[elem]) #Convert elements in list to the given types
+
+                    if with_line_numbers:
+                        row = [line_number] + row
+
+                    Table.append(row)
                     continue
-                if Line_end_identifier in line:
-                     df = pd.DataFrame(Table, columns=Column_names)
-                     self.Coordinates.append(df)
 
-                     Save_as_row = False
-                     Check = False
-                     Skip = Skip_lines
-                     Table = []
-                     continue
-
-                raw_row = line.split() #Convert string into a list; spaces in string differentiate between values
-                if Needed_row_elements:
-                    row = [raw_row[i] for i in Needed_row_elements]
-                else:
-                    row = raw_row
-
-                for elem in range(Row_element_number):
-                    row[elem] = Row_value_types[elem](row[elem]) #Convert elements in list to the given types
-
-                if with_line_numbers:
-                    row = [line_number] + row
-
-                Table.append(row)
-                continue
-
-            if Check:
                 if Line_start_identifier in line:
                     Save_as_row = True
-                if 'Leave Link' in line:
-                    Check = False
-                continue
+                    continue
 
-            if Program_identifier in line:
-                Check = True
+                if 'Leave Link' in line:
+                    break
 
     def S0(self, with_line_numbers=False): #Get base energy S0
         Program_identifier = 'l502'
