@@ -7,12 +7,22 @@ import pandas as pd
 #The program will break if RAD is retrieved without line numbers and then Scan retrieval is run. I am not fixing that
 class Extract:
     def __init__(self, filename=""):
+        self.file_programs = {}
+
         self.filename = filename
         self.File_Lines = [(), (),]
 
         if self.filename:
             with open(self.filename, 'r') as infile:
-                self.File_Lines = list(enumerate(infile.readlines(), start=1)) #Retvieve all lines and their matching line numbers as a list of touples
+                for line_number, line in enumerate(infile, start=1):
+                    self.File_Lines.append((line_number, line))
+                    if " (Enter " in line:
+                        program = line.rstrip(')').split('/')[-1].split('.')[0]
+                        if program not in list(self.file_programs.keys()):
+                            self.file_programs[program] = []
+                        self.file_programs[program].append(line_number)
+
+        self.File_len = len(self.File_Lines)
 
         self.Energies = {}
         self.Energies_S0 = {}
@@ -37,21 +47,18 @@ class Extract:
 
         Match_E_value = re.compile(r"[-]?\d+\.\d+") #Match a float in a string: [-]? optional minus, \d+ one or more didgets, \. period, \d+ one or more didgets after period
 
-        Check = False #
-        for line_number, line in self.File_Lines:
-            if Check:
-                if 'Leave Link' in line: #If program (in file text) ended. Fallback if file structure is not as anticipated
-                    Check = False
-                    continue
-                if Line_identifier in line: #If identifeing text in line
-                    E_string_match = re.search(Match_E_value, line)
-                    E_val = float(E_string_match.group()) #Extract energy value
-                    self.Energies[line_number] = E_val
-                    Check = False
-                continue
+        for program_start in self.file_programs[Program_identifier]:
+            for i in range(program_start, self.File_len):
+                line_number, line = self.File_Lines[i]
 
-            if Program_identifier in line: #If program (in file text) started
-                Check = True
+                if Line_identifier in line: #If identifeing text in line
+                        E_string_match = re.search(Match_E_value, line)
+                        E_val = float(E_string_match.group()) #Extract energy value
+                        self.Energies[line_number] = E_val
+                        break
+
+                if 'Leave Link' in line: #If program (in file text) ended. Fallback if file structure is not as anticipated
+                        break
 
     def Coordinate_values(self, Program_identifier, Line_start_identifier, Line_end_identifier, Column_names, Row_value_types, Skip_lines = 0, Needed_row_elements = [], with_line_numbers=False): #Base function for coordinate retrieval (not intended to be run on its own)
         #Program_identifier       - what the program in the file is called
