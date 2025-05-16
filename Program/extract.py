@@ -1,10 +1,6 @@
 import re
 import pandas as pd
 
-#A massive speed up would be to save lines with program identifiers while reading the file for the first time and use that for each section. I am not writting that
-#A small speed up would be to create lists of all the identifiers on class creation. I am not writting that
-#A more cleaver way to return RAD lists without line numbers would slightly speed it up. I am not writting that
-#The program will break if RAD is retrieved without line numbers and then Scan retrieval is run. I am not fixing that
 class Extract:
     def __init__(self, filename=""):
         self.file_programs = {}
@@ -43,6 +39,7 @@ class Extract:
     def Energy_values(self, Program_identifier, Line_identifier): #Base function for energy value retrieval (not intended to be run on its own)
         #Program_identifier - what the program in the file is called
         #Line_identifier - text that indentifies the correct line
+
         self.Energies = {}
 
         Match_E_value = re.compile(r"[-]?\d+\.\d+") #Match a float in a string: [-]? optional minus, \d+ one or more didgets, \. period, \d+ one or more didgets after period
@@ -60,7 +57,7 @@ class Extract:
                 if 'Leave Link' in line: #If program (in file text) ended. Fallback if file structure is not as anticipated
                         break
 
-    def Coordinate_values(self, Program_identifier, Line_start_identifier, Line_end_identifier, Column_names, Row_value_types, Skip_lines = 0, Needed_row_elements = [], with_line_numbers=False): #Base function for coordinate retrieval (not intended to be run on its own)
+    def Coordinate_values(self, Program_identifier, Line_start_identifier, Line_end_identifier, Column_names, Row_value_types, Skip_lines = 0, Needed_row_elements = []): #Base function for coordinate retrieval (not intended to be run on its own)
         #Program_identifier       - what the program in the file is called
         #Line_start_identifier    - text that indentifies where the table starts
         #Line_end_identifier      - text that indentifies where the table ends
@@ -68,14 +65,13 @@ class Extract:
         #Row_value_types          - types of values that are in the row of the file table
         #Skip_lines = 0           - how many lines to pass after "Line_start_identifier" before starting to save them
         #Needed_row_elements = [] - which values in the row of the file table are needed; if it is set then "Column_names" and "Row_value_types" need to be set accordingly
-        #with_line_numbers=False  - if the line numbers from which the rows are saved should also be saved
 
         self.Coordinates = []
+
         Table = [] #Stores rows before they are turned into a dataframe
 
         Row_element_number = len(Column_names) #How many values to expect
-        if with_line_numbers:
-            Column_names = ['Line Number'] + Column_names
+        Column_names = ['Line Number'] + Column_names
         Skip = Skip_lines
 
 
@@ -106,8 +102,7 @@ class Extract:
                     for elem in range(Row_element_number):
                         row[elem] = Row_value_types[elem](row[elem]) #Convert elements in list to the given types
 
-                    if with_line_numbers:
-                        row = [line_number] + row
+                    row = [line_number] + row
 
                     Table.append(row)
                     continue
@@ -152,10 +147,13 @@ class Extract:
         Row_value_types = [int, int, int, float, float, float]
         Skip_lines = 1
 
-        self.Coordinate_values(Program_identifier, Line_start_identifier, Line_end_identifier, Column_names, Row_value_types, Skip_lines, with_line_numbers = with_line_numbers)
+        self.Coordinate_values(Program_identifier, Line_start_identifier, Line_end_identifier, Column_names, Row_value_types, Skip_lines)
         self.Coordinates_XYZ = self.Coordinates
 
-        return self.Coordinates_XYZ
+        if with_line_numbers:
+            return self.Coordinates_XYZ
+        else:
+            return [df.drop(columns='Line Number') for df in self.Coordinates_XYZ]
 
     def RAD(self, with_line_numbers=False): #Get RAD (inner) coordinate values of atoms
         Program_identifier = 'l103'
@@ -164,10 +162,13 @@ class Extract:
         Column_names = ['Variable', 'Old X', '-DE/DX', 'Delta X (Linear)', 'Delta X (Quad)', 'Delta X (Total)', 'New X']
         Row_value_types = [str, float, float, float, float, float, float]
 
-        self.Coordinate_values(Program_identifier, Line_start_identifier, Line_end_identifier, Column_names, Row_value_types, with_line_numbers = with_line_numbers)
+        self.Coordinate_values(Program_identifier, Line_start_identifier, Line_end_identifier, Column_names, Row_value_types)
         self.Coordinates_RAD = self.Coordinates
 
-        return self.Coordinates_RAD
+        if with_line_numbers:
+            return self.Coordinates_RAD
+        else:
+            return [df.drop(columns='Line Number') for df in self.Coordinates_RAD]
 
     def Optimized_RAD(self, with_line_numbers=False): #Get RAD (inner) coordinate values of atoms but from different table (it round one more, but has atom numbering)
         Program_identifier = 'l103'
@@ -178,10 +179,13 @@ class Extract:
         Skip_lines = 4
         Needed_row_elements = [1, 2, 3, 6]
 
-        self.Coordinate_values(Program_identifier, Line_start_identifier, Line_end_identifier, Column_names, Row_value_types, Skip_lines, Needed_row_elements, with_line_numbers)
+        self.Coordinate_values(Program_identifier, Line_start_identifier, Line_end_identifier, Column_names, Row_value_types, Skip_lines, Needed_row_elements)
         self.Coordinates_Optimized_RAD = self.Coordinates
 
-        return self.Coordinates_Optimized_RAD
+        if with_line_numbers:
+            return self.Coordinates_Optimized_RAD
+        else:
+            return [df.drop(columns='Line Number') for df in self.Coordinates_Optimized_RAD]
 
     def Scan_fixed(self, filename="", with_line_numbers=False): #Get the fixed coordinate of the Scan file
         Line_start_identifier = ' The following ModRedundant input section has been read:'
