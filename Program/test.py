@@ -1,26 +1,15 @@
 import pandas as pd
+from extract import Extract
 
-# line = ' ! R1    R(1,2)                  1.5525         -DE/DX =    0.0                 !'
-#
-# Table = []
-#
-# raw_row = line.split()
-# row = raw_row[1:4] + [raw_row[6]]
-# print(row)
-# for val in range(1, len(row)):
-#     row[val] = float(row[val])
-#
-# Table.append(row)
-# Table.append(row)
-# Table.append(row)
-# Table.append(row)
-# Table.append(row)
-# Table.append(row)
-# Table.append(row)
-# Table.append(row)
-# columns = ["ID", "Value1", "Value2", "Value3", "Value4", "Value5", "Value6"]
-# df = pd.DataFrame(Table, columns=columns)
-# print(df)
+file_path = '/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-dmfm-optS0.log'
 
-line = 'D(20,1,11,18)'
-print(list(line))
+
+Extractor = Extract(file_path)
+Energys = Extractor.S0()
+Coordinates = Extractor.RAD()
+# Energys2 = Extractor.S1()
+print(Coordinates)
+
+
+
+
