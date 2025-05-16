@@ -3,9 +3,9 @@ import pandas as pd
 
 class Extract:
     def __init__(self, filename=""):
-        self.file_programs = {}
-
         self.filename = filename
+
+        self.file_programs = {}
         self.File_Lines = [(0, ""),]
 
         if self.filename:
