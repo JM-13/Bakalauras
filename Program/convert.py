@@ -29,6 +29,7 @@ import pandas as pd
 def Locate_Data_Files(folders, save_as_json=False):
 
     Data = {}
+
     for folder in folders:
         for file in os.listdir(folder):
             if file.endswith('.log'):
@@ -57,7 +58,49 @@ def Locate_Data_Files(folders, save_as_json=False):
         return Data
 
 
+#ppp-ome-in-meoh-S1-fscan-fa.log
+#bdp-pnphen-dmfm-S1-fscan-fa-cont_1x32c.log
+#bdp-phenyl-acet-S1-fscan-fa-cont.log
+#ppp-ome-in-acet-S1-fscan-fb.log
 
+def Locate_Scan_Files(folders, save_as_json=False):
+
+    Data = {}
+
+    for folder in folders:
+        for file in os.listdir(folder):
+            if file.endswith('.log'):
+                file_path = os.path.join(folder, file)
+                file_name = file.removesuffix('.log')
+
+                parts_raw = file_name.split('-')
+
+                parts = []
+                for i in parts_raw:
+                    if i =='fa' or i =='fb':
+                        parts.append(i)
+                        break
+                    else:
+                        parts.append(i)
+
+                scan_direction = parts[-1]
+                solvent_name = parts[-4]
+                material_name = '-'.join(parts[:-4])
+
+                if scan_direction not in list(Data.keys()):
+                    Data[scan_direction] = {}
+
+                if material_name not in list(Data[scan_direction].keys()):
+                    Data[scan_direction][material_name] = {}
+
+                Data[scan_direction][material_name][solvent_name] = file
+
+    if save_as_json:
+        with open("Scan_files.json", "w") as file:
+            json.dump(Data, file, indent=4)
+        return Data
+    else:
+        return Data
 
 #
 #
