@@ -58,6 +58,7 @@ class Catalogue:
             return parts_raw
 
         parts = []
+        done = False
         for i in parts_raw:
             for fe in filename_endings:
                 if i == fe:
@@ -82,7 +83,7 @@ class Catalogue:
             for file in os.listdir(folder):
                 if file.endswith('.log'):
 
-                    parts = Clean_file_name(file, clean_name)
+                    parts = self.Clean_file_name(file, clean_name)
 
                     file_type = parts[-1]
                     solute = '-'.join(parts[:solution_end])
@@ -109,7 +110,7 @@ class Catalogue:
         solution_end = -2
         json_name = "Data_files.json"
 
-        Data = Files(clean_name, solution_end, json_name)
+        Data = self.Files(clean_name, solution_end, json_name)
 
         return Data
 
@@ -119,7 +120,7 @@ class Catalogue:
         solution_end = -4
         json_name = "Scan_files.json"
 
-        Data = Files(clean_name, solution_end, json_name)
+        Data = self.Files(clean_name, solution_end, json_name)
 
         return Data
 
