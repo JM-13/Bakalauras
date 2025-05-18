@@ -26,108 +26,104 @@ import pandas as pd
 
 #bdp-phenyl-thfu-optS0.log
 
-def Locate_Data_Files(folders, save_as_json=False):
-
-    Data = {}
-
-    for folder in folders:
-        for file in os.listdir(folder):
-            if file.endswith('.log'):
-                file_path = os.path.join(folder, file)
-                file_name = file.removesuffix('.log')
-
-                parts = file_name.split('-')
-
-                data_type = parts[-1]
-                solvent_name = parts[-2]
-                material_name = '-'.join(parts[:-2])
-
-                if data_type not in list(Data.keys()):
-                    Data[data_type] = {}
-
-                if material_name not in list(Data[data_type].keys()):
-                    Data[data_type][material_name] = {}
-
-                Data[data_type][material_name][solvent_name] = file
-
-    if save_as_json:
-        with open("Data_files.json", "w") as file:
-            json.dump(Data, file, indent=4)
-        return Data
-    else:
-        return Data
-
 
 #ppp-ome-in-meoh-S1-fscan-fa.log
 #bdp-pnphen-dmfm-S1-fscan-fa-cont_1x32c.log
 #bdp-phenyl-acet-S1-fscan-fa-cont.log
 #ppp-ome-in-acet-S1-fscan-fb.log
 
-def Locate_Scan_Files(folders, save_as_json=False):
+#['optS0', 'tdS0', 'optS1', 'optR1', 'fa', 'fb']
 
-    Data = {}
+class Catalogue:
+    def __init__(self, folders, filename_endings, save_as_json=False, save_location=''):
 
-    for folder in folders:
-        for file in os.listdir(folder):
-            if file.endswith('.log'):
-                file_path = os.path.join(folder, file)
-                file_name = file.removesuffix('.log')
+        self.folders = folders
+        self.filename_endings = filename_endings
+        self.save_as_json = save_as_json
 
-                parts_raw = file_name.split('-')
+        if save_location:
+            self.save_location = save_location
+        else:
+            self.save_location = os.getenv("PWD", os.getcwd())
 
-                parts = []
-                for i in parts_raw:
-                    if i =='fa' or i =='fb':
-                        parts.append(i)
-                        break
-                    else:
-                        parts.append(i)
 
-                scan_direction = parts[-1]
-                solvent_name = parts[-4]
-                material_name = '-'.join(parts[:-4])
+    def Clean_file_name(self, file, clean):
 
-                if scan_direction not in list(Data.keys()):
-                    Data[scan_direction] = {}
+        filename_endings = self.filename_endings
 
-                if material_name not in list(Data[scan_direction].keys()):
-                    Data[scan_direction][material_name] = {}
+        filename = file.removesuffix('.log')
+        parts_raw = filename.split('-')
 
-                Data[scan_direction][material_name][solvent_name] = file
+        if not clean:
+            return parts_raw
 
-    if save_as_json:
-        with open("Scan_files.json", "w") as file:
-            json.dump(Data, file, indent=4)
+        parts = []
+        for i in parts_raw:
+            for fe in filename_endings:
+                if i == fe:
+                    done = True
+
+            parts.append(i)
+            if done:
+                break
+
+        return parts
+
+
+    def Files(self, clean_name, solution_end, json_name):
+
+        folders = self.folders
+        save = self.save_as_json
+        save_folder = self.save_location
+
+        Data = {}
+
+        for folder in folders:
+            for file in os.listdir(folder):
+                if file.endswith('.log'):
+
+                    parts = Clean_file_name(file, clean_name)
+
+                    file_type = parts[-1]
+                    solute = '-'.join(parts[:solution_end])
+                    solvent = parts[solution_end]
+
+                    if file_type not in list(Data.keys()):
+                        Data[file_type] = {}
+
+                    if solute not in list(Data[file_type].keys()):
+                        Data[file_type][solute] = {}
+
+                    Data[file_type][solute][solvent] = file
+
+        if save:
+            file_location = os.path.join(save_folder, json_name)
+            with open(file_location, "w") as file:
+                json.dump(Data, file, indent=4)
+
         return Data
-    else:
+
+
+    def Data_Files(self, clean_name = False):
+
+        solution_end = -2
+        json_name = "Data_files.json"
+
+        Data = Files(clean_name, solution_end, json_name)
+
         return Data
 
-#
-#
-#
-#             for material_name, material_abriviation in c.Material_to_fname.items():
-#                 Material_folder = os.path.join(Data_folder, material_name)
-#                 os.makedirs(Material_folder, exist_ok=True)
-#
-#                 if material_abriviation == 'ppp':
-#                     carefull = ['ppp-ome-out', 'ppp-ome-in']
-#                 else:
-#                     carefull = ['99999999', '99999999']
-#
-#                 for material_solvent in Refined_Data.keys():
-#
-#                     if material_abriviation in material_solvent and not any(x in material_solvent for x in carefull):
-#                         for solvent_name, solvent_abriviation in c.Solvent_to_fname.items():
-#
-#                             if solvent_abriviation in material_solvent:
-#
-#
-#
-#
-#
-# class Convert:
-#     def __init__(self):
-#         self.data = []
+
+    def Scan_Files(self, clean_name = True):
+
+        solution_end = -4
+        json_name = "Scan_files.json"
+
+        Data = Files(clean_name, solution_end, json_name)
+
+        return Data
+
+
 
 
 
