@@ -5,5 +5,5 @@
 /What_to_do_after_update.txt
 /Program/test.py
 /Program/__pycache__
-/Program/Scan_files.json
-/Program/Data_files.json
+/Program/Data/Scan_files.json
+/Program/Data/Data_files.json
