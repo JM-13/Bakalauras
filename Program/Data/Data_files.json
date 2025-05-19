@@ -1,0 +1,162 @@
+{
+    "ppp-ome-in": {
+        "dmso": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-in-dmso-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-in-dmso-optS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-in-dmso-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-in-dmso-optR1.log"
+        },
+        "meoh": {
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-in-meoh-optS0.log",
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-in-meoh-tdS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-in-meoh-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-in-meoh-optS1.log"
+        },
+        "acet": {
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-in-acet-optS0.log",
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-in-acet-tdS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-in-acet-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-in-acet-optS1.log"
+        },
+        "thfu": {
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-in-thfu-optS0.log",
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-in-thfu-tdS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-in-thfu-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-in-thfu-optR1.log"
+        },
+        "dmfm": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-in-dmfm-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-in-dmfm-optS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-in-dmfm-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-in-dmfm-optS1.log"
+        }
+    },
+    "bdp-pnphen": {
+        "meoh": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-pnphen-meoh-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-pnphen-meoh-optS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-pnphen-meoh-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-pnphen-meoh-optR1.log"
+        },
+        "dmfm": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-pnphen-dmfm-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-pnphen-dmfm-optS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-pnphen-dmfm-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-pnphen-dmfm-optR1.log"
+        },
+        "dmso": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-pnphen-dmso-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-pnphen-dmso-optS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-pnphen-dmso-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-pnphen-dmso-optR1.log"
+        },
+        "acet": {
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-pnphen-acet-optS0.log",
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-pnphen-acet-tdS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-pnphen-acet-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-pnphen-acet-optR1.log"
+        },
+        "thfu": {
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-pnphen-thfu-optS0.log",
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-pnphen-thfu-tdS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-pnphen-thfu-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-pnphen-thfu-optR1.log"
+        }
+    },
+    "ppp": {
+        "dmso": {
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-dmso-optS0.log",
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-dmso-tdS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-dmso-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-dmso-optR1.log"
+        },
+        "thfu": {
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-thfu-optS0.log",
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-thfu-tdS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-thfu-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-thfu-optR1.log"
+        },
+        "dmfm": {
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-dmfm-optS0.log",
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-dmfm-tdS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-dmfm-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-dmfm-optS1.log"
+        },
+        "meoh": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-meoh-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-meoh-optS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-meoh-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-meoh-optS1.log"
+        },
+        "acet": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-acet-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-acet-optS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-acet-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-acet-optS1.log"
+        }
+    },
+    "bdp-phenyl": {
+        "dmso": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-dmso-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-dmso-optS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-phenyl-dmso-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-phenyl-dmso-optS1.log"
+        },
+        "thfu": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-thfu-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-thfu-optS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-phenyl-thfu-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-phenyl-thfu-optS1.log"
+        },
+        "meoh": {
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-meoh-optS0.log",
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-meoh-tdS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-phenyl-meoh-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-phenyl-meoh-optR1.log"
+        },
+        "acet": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-acet-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-acet-optS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-phenyl-acet-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-phenyl-acet-optS1.log"
+        },
+        "dmfm": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-dmfm-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/bdp-phenyl-dmfm-optS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-phenyl-dmfm-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/bdp-phenyl-dmfm-optS1.log"
+        }
+    },
+    "ppp-ome-out": {
+        "meoh": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-out-meoh-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-out-meoh-optS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-out-meoh-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-out-meoh-optR1.log"
+        },
+        "acet": {
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-out-acet-optS0.log",
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-out-acet-tdS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-out-acet-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-out-acet-optS1.log"
+        },
+        "dmso": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-out-dmso-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-out-dmso-optS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-out-dmso-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-out-dmso-optR1.log"
+        },
+        "dmfm": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-out-dmfm-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-out-dmfm-optS0.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-out-dmfm-optS1.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-out-dmfm-optR1.log"
+        },
+        "thfu": {
+            "tdS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-out-thfu-tdS0.log",
+            "optS0": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0/ppp-ome-out-thfu-optS0.log",
+            "optR1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-out-thfu-optR1.log",
+            "optS1": "/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1/ppp-ome-out-thfu-optS1.log"
+        }
+    }
+}
