@@ -3,7 +3,6 @@
 S0_folder = '/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0'
 S1_folder = '/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1'
 Scan_folder = '/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/3-scans'
-Procesed_Data_Folder = '/home/deck/Desktop/Bak_Baig/Program/Data/'
 
 Solvent_to_fname = {'Acetone':'-acet',
                     'DiMethylFormamide':'-dmfm',

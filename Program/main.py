@@ -7,21 +7,7 @@ import json
 import constants as c
 from tools.catalogue_data import Catalogue
 from tools.extract_values import Extract
-
-
-def Convert_measurement_type(row):
-
-    rounding = [True, 6]
-
-    if 'R' in row.iloc[0]:
-        converted_value = row.iloc[-1] * 0.529177249 #To angstroms
-    else:
-        converted_value = np.degrees(row.iloc[-1])   #To degrees
-
-    if rounding[0]:
-        converted_value = round(converted_value, rounding[1])
-
-    return converted_value
+from tools.angstroms_and_degrees import Convert_measurement_type
 
 
 Working_dir = os.getenv("PWD", os.getcwd())
@@ -54,7 +40,7 @@ To_angstroms_and_degrees = False
 for solute in list(Data_files.keys()):
 
     Save_folder_name = c.Filename_to_Solute[solute]
-    Save_folder_path = os.path.join(c.Procesed_Data_Folder, Save_folder_name)
+    Save_folder_path = os.path.join(Data_folder, Save_folder_name)
     os.makedirs(Save_folder_path, exist_ok=True)
 
     for solvent in list(Data_files[solute].keys()):
