@@ -47,7 +47,7 @@ for solute in list(Data_files.keys()):
 
         print(f"Getting data from files {solute}-{solvent}-...log")
 
-        Save_file_name = c.Filename_to_Solvent[solvent] + '_' + c.Filename_to_Solute[solute] + '.txt'
+        Save_file_name = f"{c.Filename_to_Solvent[solvent]}_{c.Filename_to_Solute[solute]}.txt"
         Save_file_path = os.path.join(Save_folder_path, Save_file_name)
 
         Energys_combined = {}
@@ -81,9 +81,9 @@ for solute in list(Data_files.keys()):
             if file_type != 'tdS0':
 
                 if len(Coordinates_combined) == 0:
-                    Coordinates_combined['Name'] = list(Optimized_Coordinates[-1]['Name'])
-                    Coordinates_combined['Definition'] = list(Optimized_Coordinates[-1]['Definition'])
-                    Optimized_coordinates_combined['Name'] = list(Optimized_Coordinates[-1]['Name'])
+                    Coordinates_combined['Name']                 = list(Optimized_Coordinates[-1]['Name'])
+                    Coordinates_combined['Definition']           = list(Optimized_Coordinates[-1]['Definition'])
+                    Optimized_coordinates_combined['Name']       = list(Optimized_Coordinates[-1]['Name'])
                     Optimized_coordinates_combined['Definition'] = list(Optimized_Coordinates[-1]['Definition'])
 
                 relavent_coordinates = Coordinates[-1]
@@ -92,11 +92,11 @@ for solute in list(Data_files.keys()):
                 if To_angstroms_and_degrees:
                     relavent_coordinates['New X'] = relavent_coordinates.apply(Convert_measurement_type, axis=1)
 
-                Coordinates_combined[file_type] = list(relavent_coordinates['New X'])
+                Coordinates_combined[file_type]           = list(relavent_coordinates['New X'])
                 Optimized_coordinates_combined[file_type] = list(relavent_optimized_coordinates['Value'])
 
-        Energys_combined = pd.DataFrame([Energys_combined])[['optS0', 'tdS0', 'optS1', 'optR1']]
-        Coordinates_combined = pd.DataFrame(Coordinates_combined)[['Name', 'Definition', 'optS0', 'optS1', 'optR1']]
+        Energys_combined               = pd.DataFrame([Energys_combined])[['optS0', 'tdS0', 'optS1', 'optR1']]
+        Coordinates_combined           = pd.DataFrame(Coordinates_combined)[['Name', 'Definition', 'optS0', 'optS1', 'optR1']]
         Optimized_coordinates_combined = pd.DataFrame(Optimized_coordinates_combined)[['Name', 'Definition', 'optS0', 'optS1', 'optR1']]
 
         with open(Save_file_path, 'w') as f:
@@ -113,5 +113,82 @@ for solute in list(Data_files.keys()):
                 f.write("\n")
                 f.write(Optimized_coordinates_combined.to_string(index=False))
                 f.write("\n")
+
+        print(f'Written data to file: {Save_file_name} in folder: {Save_folder_path}\n')
+
+
+
+
+
+with open("Scan_files.json", "r") as file:
+    Data_files = json.load(file)
+
+
+for solute in list(Data_files.keys()):
+
+    Save_folder_name = c.Filename_to_Solute[solute]
+    Save_folder_path = os.path.join(Data_folder, Save_folder_name)
+    os.makedirs(Save_folder_path, exist_ok=True)
+
+    for solvent in list(Data_files[solute].keys()):
+
+        print(f"Getting data from Scan files {solute}-{solvent}-...log")
+
+        Save_file_name = f"SCAN_{c.Filename_to_Solvent[solvent]}_{c.Filename_to_Solute[solute]}.txt"
+        Save_file_path = os.path.join(Save_folder_path, Save_file_name)
+
+        Data_combined = {}
+
+
+        for direction in list(Data_files[solute][solvent].keys()):
+
+            Extractor = Extract(Data_files[solute][solvent][direction])
+
+            Fixed_val = Extractor.Scan_fixed()
+            Fixed_val = ', '.join(str(item) for item in Fixed_val)
+
+            Energies = Extractor.Scan_Optimized_Energy()
+            RAD_fixed_vals = Extractor.Scan_RAD_fixed_values()
+            RAD_averages = Extractor.Scan_RAD_fixed_average(return_fixed_opposit=True)
+
+            if direction == 'fa':
+
+                Data_dataframe = pd.DataFrame({'S0':Energies[0],
+                                               'S1':Energies[1],
+                                               'D_fixed':RAD_fixed_vals,
+                                               'D_average':RAD_averages[1]})
+
+                Base_S0 = Data_dataframe['S0'].min()
+                Data_dataframe['S0'] = Data_dataframe['S0'] - Base_S0
+                Data_dataframe['S1'] = Data_dataframe['S1'] - Base_S0
+
+                Data_combined['fa'] = {'Fixed':[Fixed_val, RAD_averages[0]], 'Data':Data_dataframe}
+
+            elif direction == 'fb':
+
+                Data_dataframe = pd.DataFrame({'S0':reversed(Energies[0]),
+                                               'S1':reversed(Energies[1]),
+                                               'D_fixed':reversed(RAD_fixed_vals),
+                                               'D_average':reversed(RAD_averages[1])})
+
+                Base_S0 = Data_dataframe['S0'].min()
+                Data_dataframe['S0'] = Data_dataframe['S0'] - Base_S0
+                Data_dataframe['S1'] = Data_dataframe['S1'] - Base_S0
+
+                Data_combined['fb'] = {'Fixed':[Fixed_val, RAD_averages[0]], 'Data':Data_dataframe}
+
+
+        with open(Save_file_path, 'w') as f:
+            f.write("From fa scan:\n")
+            f.write(f"{'Fixed'}   = {Data_combined['fa']['Fixed'][0]}\n")
+            f.write(f"{'Opposit'} = {Data_combined['fa']['Fixed'][1]}\n\n")
+            f.write(Data_combined['fa']['Data'].to_string(index=False))
+
+            f.write("\n\n")
+
+            f.write("From fb scan:\n")
+            f.write(f"{'Fixed'}   = {Data_combined['fb']['Fixed'][0]}\n")
+            f.write(f"{'Opposit'} = {Data_combined['fb']['Fixed'][1]}\n\n")
+            f.write(Data_combined['fb']['Data'].to_string(index=False))
 
         print(f'Written data to file: {Save_file_name} in folder: {Save_folder_path}\n')
