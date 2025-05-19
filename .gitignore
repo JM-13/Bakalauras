@@ -3,7 +3,9 @@
 /Github_Workflow.txt
 /Unix_Commands.txt
 /What_to_do_after_update.txt
-/Program/test.py
 /Program/__pycache__
-/Program/Data/Scan_files.json
-/Program/Data/Data_files.json
+/Program/Data_files.json
+/Program/Scan_files.json
+/tests
+/tools/__pycache__
+
