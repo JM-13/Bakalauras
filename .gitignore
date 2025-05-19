@@ -6,6 +6,6 @@
 /Program/__pycache__
 /Program/Data_files.json
 /Program/Scan_files.json
-/tests
-/tools/__pycache__
+/Program/tests
+/Program/tools/__pycache__
 
