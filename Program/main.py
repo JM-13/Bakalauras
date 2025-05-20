@@ -114,7 +114,7 @@ for solute in list(Data_files.keys()):
                 f.write(Optimized_coordinates_combined.to_string(index=False))
                 f.write("\n")
 
-        print(f'Written data to file: {Save_file_name} in folder: {Save_folder_path}\n')
+        # print(f'Written data to file: {Save_file_name} in folder: {Save_folder_path}\n')
 
 
 
@@ -191,4 +191,5 @@ for solute in list(Data_files.keys()):
             f.write(f"{'Opposit'} = {Data_combined['fb']['Fixed'][1]}\n\n")
             f.write(Data_combined['fb']['Data'].to_string(index=False))
 
-        print(f'Written data to file: {Save_file_name} in folder: {Save_folder_path}\n')
+        # print(f'Written data to file: {Save_file_name} in folder: {Save_folder_path}\n')
+print(f'\nAll data saved to folder {Data_folder} sorted into folders based on used solute')
