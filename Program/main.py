@@ -37,13 +37,13 @@ Save_coordinates = False
 Save_optimized_coordinates = True
 To_angstroms_and_degrees = False
 
-for solute in list(Data_files.keys()):
+for solute in Data_files:
 
     Save_folder_name = c.Filename_to_Solute[solute]
     Save_folder_path = os.path.join(Data_folder, Save_folder_name)
     os.makedirs(Save_folder_path, exist_ok=True)
 
-    for solvent in list(Data_files[solute].keys()):
+    for solvent in Data_files[solute]:
 
         print(f"Getting data from files {solute}-{solvent}-...log")
 
@@ -54,7 +54,7 @@ for solute in list(Data_files.keys()):
         Coordinates_combined = {}
         Optimized_coordinates_combined = {}
 
-        for file_type in list(Data_files[solute][solvent].keys()):
+        for file_type in Data_files[solute][solvent]:
 
             Extractor = Extract(Data_files[solute][solvent][file_type])
 
@@ -101,7 +101,7 @@ for solute in list(Data_files.keys()):
 
         with open(Save_file_path, 'w') as f:
 
-            for file_type in list(Energys_combined.keys()):
+            for file_type in Energys_combined:
                 f.write(f"{file_type} = {Energys_combined[file_type].iloc[0]}\n")
 
             if Save_coordinates:
@@ -124,13 +124,13 @@ with open("Scan_files.json", "r") as file:
     Data_files = json.load(file)
 
 
-for solute in list(Data_files.keys()):
+for solute in Data_files:
 
     Save_folder_name = c.Filename_to_Solute[solute]
     Save_folder_path = os.path.join(Data_folder, Save_folder_name)
     os.makedirs(Save_folder_path, exist_ok=True)
 
-    for solvent in list(Data_files[solute].keys()):
+    for solvent in Data_files[solute]:
 
         print(f"Getting data from Scan files {solute}-{solvent}-...log")
 
@@ -140,7 +140,7 @@ for solute in list(Data_files.keys()):
         Data_combined = {}
 
 
-        for direction in list(Data_files[solute][solvent].keys()):
+        for direction in Data_files[solute][solvent]:
 
             Extractor = Extract(Data_files[solute][solvent][direction])
 
