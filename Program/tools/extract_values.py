@@ -1,5 +1,7 @@
 import re
 import pandas as pd
+import bisect
+import numpy as np
 
 class Extract:
     def __init__(self, filename=""):
@@ -229,44 +231,28 @@ class Extract:
     def Scan_Optimized_Energy(self): #Get the S0 and S1 energys of every fixed coordinate incrament
 
         if not self.Energies_S0:
-            S0 = self.S0(with_line_numbers = True)
-        else:
-            S0 = self.Energies_S0
+            self.S0(with_line_numbers = True)
         if not self.Energies_S1:
-            S1 = self.S1(with_line_numbers = True)
-        else:
-            S1 = self.Energies_S1
+            self.S1(with_line_numbers = True)
         if not self.Coordinates_Optimized_RAD:
-            RAD = self.Optimized_RAD(with_line_numbers = True)
-        else:
-            RAD = self.Coordinates_Optimized_RAD
+            self.Optimized_RAD(with_line_numbers = True)
 
+        S0 = self.Energies_S0
+        S1 = self.Energies_S1
+        RAD = self.Coordinates_Optimized_RAD
 
-        RAD_start_line_numbers = []
-        for df in RAD:
-            RAD_start_line_numbers.append(df.iloc[0, 0])
+        RAD_start_line_numbers = [df.iloc[0, 0] for df in RAD]
+        S0_line_numbers = sorted(S0.keys())
+        S1_line_numbers = sorted(S1.keys())
 
-        S0_line_numbers = list(S0.keys())
-        S1_line_numbers = list(S1.keys())
-
-        S0_left_of_at = 0
-        S1_left_of_at = 0
         for rad_l_n in RAD_start_line_numbers:
-            for s0_l_n in S0_line_numbers[S0_left_of_at:]:
-                if rad_l_n>s0_l_n:
-                    Optimized_S0 = s0_l_n
-                    S0_left_of_at+=1
-                else:
-                    break
-            self.Scan_Energies_S0.append(S0[Optimized_S0])
+            i = bisect.bisect_left(S0_line_numbers, rad_l_n)
+            s0_idx = S0_line_numbers[i-1] if i else S0_line_numbers[0]
+            self.Scan_Energies_S0.append(S0[s0_idx])
 
-            for s1_l_n in S1_line_numbers[S1_left_of_at:]:
-                if rad_l_n>s1_l_n:
-                    Optimized_S1 = s1_l_n
-                    S1_left_of_at+=1
-                else:
-                    break
-            self.Scan_Energies_S1.append(S1[Optimized_S1])
+            j = bisect.bisect_left(S1_line_numbers, rad_l_n)
+            s1_idx = S1_line_numbers[j-1] if j else S1_line_numbers[0]
+            self.Scan_Energies_S1.append(S1[s1_idx])
 
         return [self.Scan_Energies_S0, self.Scan_Energies_S1]
 
@@ -323,8 +309,8 @@ class Extract:
             if not Fixed_value_opposit:
                 Fixed_value_opposit = df_filltered.iloc[0].tolist()[2] #Save the opposit to fixed pattern
 
-        for fixd, opps in zip(RAD_fixed_values, RAD_fixed_values_opposit):
-            self.Scan_Fixed_Coordinate_averages.append(round((fixd+opps)/2, 5)) #Save the average of the fixed and opposit to it value correctly? rounded
+        averages = np.round((np.array(RAD_fixed_values) + np.array(RAD_fixed_values_opposit)) / 2, 5) #Save the average of the fixed and opposit to it value correctly? rounded
+        self.Scan_Fixed_Coordinate_averages = averages.tolist()
 
         if return_fixed_opposit:
             return [Fixed_value_opposit, self.Scan_Fixed_Coordinate_averages]
