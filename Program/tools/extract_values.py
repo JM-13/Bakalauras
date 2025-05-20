@@ -217,7 +217,7 @@ class Extract:
                     Save = False
                     break
 
-        Fixed_value_name = Fixed_value[0] + '(' + ",".join(Fixed_value[1:5]) + ')'
+        Fixed_value_name = f"{Fixed_value[0]}({','.join(Fixed_value[1:5])})"
 
         self.Scan_Fixed_Value = [line_number, [Fixed_value_name] + Fixed_value[5:8]]
 
@@ -248,9 +248,10 @@ class Extract:
 
         S0_line_numbers = list(S0.keys())
         S1_line_numbers = list(S1.keys())
-        for rad_l_n in RAD_start_line_numbers:
 
-            S0_left_of_at = 0
+        S0_left_of_at = 0
+        S1_left_of_at = 0
+        for rad_l_n in RAD_start_line_numbers:
             for s0_l_n in S0_line_numbers[S0_left_of_at:]:
                 if rad_l_n>s0_l_n:
                     Optimized_S0 = s0_l_n
@@ -259,7 +260,6 @@ class Extract:
                     break
             self.Scan_Energies_S0.append(S0[Optimized_S0])
 
-            S1_left_of_at = 0
             for s1_l_n in S1_line_numbers[S1_left_of_at:]:
                 if rad_l_n>s1_l_n:
                     Optimized_S1 = s1_l_n
@@ -313,7 +313,8 @@ class Extract:
         RAD_fixed_values_opposit = []
         Fixed_value_opposit = []
         for df in RAD:
-            df_filltered = df[df['Definition'].str.contains(Atom_patterns[0], regex=True)] #Which rows match this atom pattern; there will be 4
+            df_filltered = df
+            df_filltered = df_filltered[df_filltered['Definition'].str.contains(Atom_patterns[0], regex=True)] #Which rows match this atom pattern; there will be 4
             df_filltered = df_filltered[~df_filltered['Definition'].str.contains(Atom_patterns[1], regex=True)] #Which rows do not match this atom pattern; will leave 2
             df_filltered = df_filltered[~df_filltered['Definition'].str.contains(Atom_patterns[2], regex=True)] #Which rows do not match this atom pattern; will leave the wanted row
 
