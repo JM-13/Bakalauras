@@ -1,6 +1,5 @@
 import os
 import json
-import pandas as pd
 
 class Catalogue:
     def __init__(self, folders, filename_endings, save_as_json=False, save_location=''):
@@ -59,10 +58,10 @@ class Catalogue:
                     solute = '-'.join(parts[:solution_end])
                     solvent = parts[solution_end]
 
-                    if solute not in list(Data.keys()):
+                    if solute not in Data:
                         Data[solute] = {}
 
-                    if solvent not in list(Data[solute].keys()):
+                    if solvent not in Data[solute]:
                         Data[solute][solvent] = {}
 
                     Data[solute][solvent][file_type] = file_path
