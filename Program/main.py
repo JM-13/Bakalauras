@@ -33,8 +33,8 @@ with open("Data_files.json", "r") as file:
     Data_files = json.load(file)
 
 
-Save_coordinates = False
-Save_optimized_coordinates = True
+Save_coordinates = True
+Save_optimized_coordinates = False
 To_angstroms_and_degrees = False
 
 for solute in Data_files:
@@ -47,7 +47,7 @@ for solute in Data_files:
 
         print(f"Getting data from files {solute}-{solvent}-...log")
 
-        Save_file_name = f"{c.Filename_to_Solvent[solvent]}_{c.Filename_to_Solute[solute]}.txt"
+        Save_file_name = f"{c.Filename_to_Solvent[solvent]}_{c.Filename_to_Solute[solute]}_DATA.txt"
         Save_file_path = os.path.join(Save_folder_path, Save_file_name)
 
         Energys_combined = {}
@@ -134,7 +134,7 @@ for solute in Data_files:
 
         print(f"Getting data from Scan files {solute}-{solvent}-...log")
 
-        Save_file_name = f"SCAN_{c.Filename_to_Solvent[solvent]}_{c.Filename_to_Solute[solute]}.txt"
+        Save_file_name = f"{c.Filename_to_Solvent[solvent]}_{c.Filename_to_Solute[solute]}_SCAN.txt"
         Save_file_path = os.path.join(Save_folder_path, Save_file_name)
 
         Data_combined = {}
@@ -192,4 +192,16 @@ for solute in Data_files:
             f.write(Data_combined['fb']['Data'].to_string(index=False))
 
         # print(f'Written data to file: {Save_file_name} in folder: {Save_folder_path}\n')
+
+processed_data_folder = []
+for i in list(c.Filename_to_Solute.values()):
+    folder_path = os.path.join(Data_folder, i)
+    processed_data_folder.append(folder_path)
+
+Catalogue(folders = processed_data_folder,
+          save_as_json = True,
+          save_location = Data_folder).Processed_Data_Files([1,2,0])
+
 print(f'\nAll data saved to folder {Data_folder} sorted into folders based on used solute')
+
+
