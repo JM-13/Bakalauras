@@ -16,3 +16,15 @@ Filename_to_Solute = {'bdp-pnphen' :'BDP-nitrophenyl',
                       'ppp'        :'BDP-PP-phenyl',
                       'ppp-ome-out':'BDP-PP-phenyl_OMes_backward',
                       'ppp-ome-in' :'BDP-PP-phenyl_OMes_forward'}
+
+Solvent_to_shorten = {'Acetone':'Acetone',
+                      'DiMethylFormamide':'DMF',
+                      'DiMethylSulfoxide':'DMSO',
+                      'Methanol':'Methanol',
+                      'TetraHydroFuran':'THF'}
+
+Solute_to_shorten = {'BDP-nitrophenyl':'BDP-NPh',
+                     'BDP-phenyl':'BDP-Ph',
+                     'BDP-PP-phenyl':'BDP-PPPh',
+                     'BDP-PP-phenyl_OMes_backward':'BDP-PPPh-OMe-out',
+                     'BDP-PP-phenyl_OMes_forward':'BDP-PPPh-OMe-in'}
