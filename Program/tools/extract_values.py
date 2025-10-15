@@ -7,7 +7,7 @@ class Extract:
     def __init__(self, filename=""):
         self.filename = filename
 
-        self.file_programs = {}
+        self.file_programs = {}#program codes of the program used to generate the data
         self.File_Lines = [(0, ""),]
 
         if self.filename:

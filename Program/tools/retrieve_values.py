@@ -3,32 +3,41 @@ import pandas as pd
 import io
 
 class Retvieve:
-    def __init__(self, filepath):
+    def __init__(self, multiple=False):
 
-        self.filepath = filepath
+        self.multiple = multiple
         self.Data = {'Energys':{},
-                     'Coordinates':None}
+                     'Coordinates':[]}
         self.Scan_Data = {'fa':None,
                           'fb':None}
 
-
-    def Regular_data(self):
-        with open(self.filepath, "r") as file:
+    def Regular_data(self, filepath):
+        with open(filepath, "r") as file:
             for _ in range(4):
                 line = file.readline().strip()
                 key, value = line.split("=")
-                self.Data['Energys'][key.strip()] = float(value.strip())
+
+                if self.multiple:
+                    if not self.Data['Energys'][key.strip()]:
+                        self.Data['Energys'][key.strip()] = []
+
+                    self.Data['Energys'][key.strip()] += [float(value.strip())]
+                else:
+                    self.Data['Energys'][key.strip()] = float(value.strip())
 
             file.readline()
 
             df = pd.read_csv(file, sep='\s+').convert_dtypes()
 
-        self.Data['Coordinates'] = df
+        if self.multiple:
+            self.Data['Coordinates'] += [df]
+        else:
+            self.Data['Coordinates'] = df
 
         return self.Data
 
-    def Scan_data(self):
 
+    def Scan_data(self, filepath):
         with open(filepath, "r") as file:
             sections = file.read().strip().split("\n\n")
 
@@ -39,5 +48,8 @@ class Retvieve:
         self.Scan_Data['fb'] = df_fb
 
         return self.Scan_Data
+
+    def Return_multiple(self):
+        return self.Data
 
 

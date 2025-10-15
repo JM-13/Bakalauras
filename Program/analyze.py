@@ -7,8 +7,17 @@ from constants import *
 from tools.catalogue_data import Catalogue
 from tools.retrieve_values import Retvieve
 
-Solute_order = ['BDP-nitrophenyl', 'BDP-phenyl', 'BDP-PP-phenyl', 'BDP-PP-phenyl_OMes_backward', 'BDP-PP-phenyl_OMes_forward']
-Solvent_order = ['Acetone', 'DiMethylFormamide', 'DiMethylSulfoxide', 'Methanol', 'TetraHydroFuran']
+Solute_order = ['BDP-nitrophenyl',
+                'BDP-phenyl',
+                'BDP-PP-phenyl',
+                'BDP-PP-phenyl_OMes_backward',
+                'BDP-PP-phenyl_OMes_forward']
+
+Solvent_order = ['Acetone',
+                 'DiMethylFormamide',
+                 'DiMethylSulfoxide',
+                 'Methanol',
+                 'TetraHydroFuran']
 
 energy_level_names = {'optS0':'S0',
                       'optS1':'S1',

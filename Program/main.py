@@ -29,13 +29,13 @@ Catalogue(folders = [c.Scan_folder],
           save_location = Working_dir).Scan_Files()
 
 
-with open("Data_files.json", "r") as file:
-    Data_files = json.load(file)
-
-
 Save_coordinates = True
 Save_optimized_coordinates = False
 To_angstroms_and_degrees = False
+
+with open("Data_files.json", "r") as file:
+    Data_files = json.load(file)
+
 
 for solute in Data_files:
 
