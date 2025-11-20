@@ -6,11 +6,8 @@ import io
 import time
 import sys
 
-def Degree_correction(df1, df2, scale=10000):
+def degree_correction(df1, df2, scale=10000):
     pi2 = 2 * math.pi
-
-    a = df1.to_numpy()
-    b = df2.to_numpy()
 
     a = df1.to_numpy(dtype=float)
     b = df2.to_numpy(dtype=float)
@@ -27,22 +24,27 @@ def Degree_correction(df1, df2, scale=10000):
     return df1_corrected, df2_corrected
 
 
-def Root_Mean_Square(series):
-    return np.sqrt((series**2).mean())
+def root_mean_square(pd_series):
+    rms = np.sqrt((pd_series**2).mean())
 
-def Filter_cords_by_atom_number(df, solute, keep=""):
-    if keep == "A":
+    return rms
+
+def filter_by_atom_number(df, solute, bdp_central=""):
+    if bdp_central == "":
+        print(f"No bdp_central value given!\nbdp_central needs to be one of the following:\n{"A"} - All 21 atoms\n{"H"} - Exclude replaced Hydrogen atoms\n{"NoH"} - No Hydrogen atoms")
+        sys.exit(1)
+    elif bdp_central == "A":
         pass
-    elif keep == "H":
+    elif bdp_central == "H":
         pass
-    elif keep == "NoH":
+    elif bdp_central == "NoH":
         pass
     else:
-        print(f"Incorect keep value given: {keep}\nkeep needs to be one of the following:\n{"A"} - All 21 atoms\n{"H"} - Exclude replaced Hydrogen atoms\n{"NoH"} - No Hydrogen atoms")
+        print(f"Incorect bdp_central value given: {bdp_central}\nbdp_central needs to be one of the following:\n{"A"} - All 21 atoms\n{"H"} - Exclude replaced Hydrogen atoms\n{"NoH"} - No Hydrogen atoms")
         sys.exit(1)
 
 
-    Atoms = {
+    atoms = {
                 "A":{
                        'BDP-nitrophenyl':            [i+1 for i in range(21)],
                        'BDP-phenyl':                 [i+1 for i in range(21)],
@@ -71,76 +73,75 @@ def Filter_cords_by_atom_number(df, solute, keep=""):
     filter_df = pd.DataFrame()
     filter_df["nums"] = df["Definition"].str.findall(r'\d+').apply(lambda x: list(map(int, x)))
 
-    allowed_set = set(Atoms[keep][solute])
+    allowed_set = set(atoms[bdp_central][solute])
     filter_df["valid"] = filter_df["nums"].apply(lambda group: all(x in allowed_set for x in group))
 
     df_filtered = df[filter_df["valid"]]
 
     return df_filtered
 
-class Retvieve:
+class Retrieve:
     def __init__(self, multiple=False):
 
         self.multiple = multiple
-        self.Data = {'Energys':{},
+        self.data = {'Energys':{},
                      'Coordinates':[]}
 
-        self.Filtered_Coordinates = []
-
-        self.Scan_Data = {'fa':None,
+        self.scan_data = {'fa':None,
                           'fb':None}
 
-    def Regular_data(self, filepath, filter_cords=False, keep="", solute=""):
+    def regular_data(self, filepath, filter_cords=False, bdp_central="", solute=""):
         with open(filepath, "r") as file:
             for _ in range(4):
 
                 line = file.readline().strip()
                 key, value = line.split("=")
                 if self.multiple:
-                    if not key.strip() in self.Data['Energys']:
-                        self.Data['Energys'][key.strip()] = []
-                    self.Data['Energys'][key.strip()] += [float(value.strip())]
+                    if not key.strip() in self.data['Energys']:
+                        self.data['Energys'][key.strip()] = []
+                    self.data['Energys'][key.strip()] += [float(value.strip())]
                 else:
-                    self.Data['Energys'][key.strip()] = float(value.strip())
+                    self.data['Energys'][key.strip()] = float(value.strip())
 
             file.readline()
 
             df = pd.read_csv(file, sep=r'\s+').convert_dtypes()
 
             if filter_cords:
-                df = Filter_cords_by_atom_number(df, solute, keep)
+                df = filter_by_atom_number(df, solute, bdp_central)
 
         if self.multiple:
-            self.Data['Coordinates'] += [df]
+            self.data['Coordinates'] += [df]
         else:
-            self.Data['Coordinates'] = df
+            self.data['Coordinates'] = df
 
         return df
 
-    def Return_Data(self):
-        return self.Data
+    def return_regular_data(self):
+        return self.data
 
-    def Scan_data(self, filepath):
+    def scan_data(self, filepath):
         with open(filepath, "r") as file:
             sections = file.read().strip().split("\n\n")
 
         df_fa = pd.read_csv(io.StringIO(sections[1]), sep=r'\s+').convert_dtypes()
-        self.Scan_Data['fa'] = df_fa
+        self.scan_data['fa'] = df_fa
 
         df_fb = pd.read_csv(io.StringIO(sections[3]), sep=r'\s+').convert_dtypes()
-        self.Scan_Data['fb'] = df_fb
+        self.scan_data['fb'] = df_fb
 
-        return self.Scan_Data
+        return self.scan_data
 
-class Difference_Between:
+class Analyze:
     def __init__(self,
-                 All_Data_folder,
+                 all_data_folder,
                  difference_function,
-                 solutes, solvents,
+                 solutes,
+                 solvents,
                  solutes_shorten,
                  solvents_shorten):
 
-        self.All_Data_folder = All_Data_folder
+        self.All_Data_folder = all_data_folder
         self.difference_function = difference_function
 
         self.Solutes = solutes
@@ -164,32 +165,32 @@ class Difference_Between:
         self.All_solvent_energy_diffs_by_slu = {}
         self.All_solvent_coordinate_diffs_by_slu = {}
 
-    def Difference_calculator(self, data, short_names_of_compared, save_energy_types=True):
-        Energy_Energy_types = []
-        Energy_difs = {}
+    def _difference_calculator(self, data, short_names, save_energy_types=True):
+        energy_difs = {}
+        coordinate_difs = {}
 
-        Coordinate_Energy_types = []
-        Coordinate_difs = {}
+        energy_energy_types = []
+        coordinate_energy_types = []
 
         #ENERGIES
         for energy_type in data['Energys']:
-            Energy_difs[energy_type] = {}
-            Energy_Energy_types.append(energy_type)
+            energy_difs[energy_type] = {}
+            energy_energy_types.append(energy_type)
 
-            for ssl, energy_1 in zip(short_names_of_compared, data['Energys'][energy_type]):
+            for ssln, energy_1 in zip(short_names, data['Energys'][energy_type]):
                 difference_column = []
 
                 for energy_2 in data['Energys'][energy_type]:
                     difference = self.difference_function(energy_2, energy_1)
                     difference_column.append(difference)
 
-                Energy_difs[energy_type][ssl] = difference_column
+                energy_difs[energy_type][ssln] = difference_column
 
-            difference_df = pd.DataFrame(Energy_difs[energy_type], index=short_names_of_compared)
-            Energy_difs[energy_type] = difference_df
+            difference_df = pd.DataFrame(energy_difs[energy_type], index=short_names)
+            energy_difs[energy_type] = difference_df
 
         #COORDINATES
-        for ssl, coordinate_df in zip(short_names_of_compared, data['Coordinates']):
+        for ssln, coordinate_df in zip(short_names, data['Coordinates']):
 
             coord_df_R_1 = coordinate_df[coordinate_df['Name'].str.startswith('R')].reset_index(drop=True)
             coord_df_A_1 = coordinate_df[coordinate_df['Name'].str.startswith('A')].reset_index(drop=True)
@@ -199,21 +200,22 @@ class Difference_Between:
             coord_df_A_1.drop(coord_df_A_1.columns[[0, 1]], axis=1, inplace=True)
             coord_df_D_1.drop(coord_df_D_1.columns[[0, 1]], axis=1, inplace=True)
 
-            if not Coordinate_Energy_types:
-                Coordinate_Energy_types = list(coord_df_R_1.columns)
+            if not coordinate_energy_types:
+                coordinate_energy_types = list(coord_df_R_1.columns)
 
-            if not Coordinate_difs:
-                for energy_type in Coordinate_Energy_types:
-                    Coordinate_difs[energy_type] = {'MAX':{'R':{}, 'A':{}, 'D':{}},
+            if not coordinate_difs:
+                for energy_type in coordinate_energy_types:
+                    coordinate_difs[energy_type] = {'MAX':{'R':{}, 'A':{}, 'D':{}},
                                                     'RMS':{'R':{}, 'A':{}, 'D':{}}}
-            for energy_type in Coordinate_Energy_types:
-                Coordinate_difs[energy_type]['MAX']['R'][ssl] = []
-                Coordinate_difs[energy_type]['MAX']['A'][ssl] = []
-                Coordinate_difs[energy_type]['MAX']['D'][ssl] = []
 
-                Coordinate_difs[energy_type]['RMS']['R'][ssl] = []
-                Coordinate_difs[energy_type]['RMS']['A'][ssl] = []
-                Coordinate_difs[energy_type]['RMS']['D'][ssl] = []
+            for energy_type in coordinate_difs:
+                coordinate_difs[energy_type]['MAX']['R'][ssln] = []
+                coordinate_difs[energy_type]['MAX']['A'][ssln] = []
+                coordinate_difs[energy_type]['MAX']['D'][ssln] = []
+
+                coordinate_difs[energy_type]['RMS']['R'][ssln] = []
+                coordinate_difs[energy_type]['RMS']['A'][ssln] = []
+                coordinate_difs[energy_type]['RMS']['D'][ssln] = []
 
             for coordinate_df2 in data['Coordinates']:
                 coord_df_R_2 = coordinate_df2[coordinate_df2['Name'].str.startswith('R')].reset_index(drop=True)
@@ -224,11 +226,11 @@ class Difference_Between:
                 coord_df_A_2.drop(coord_df_A_2.columns[[0, 1]], axis=1, inplace=True)
                 coord_df_D_2.drop(coord_df_D_2.columns[[0, 1]], axis=1, inplace=True)
 
-                coord_df_D_1, coord_df_D_2 = Degree_correction(coord_df_D_1, coord_df_D_2)
+                coord_df_D_1, coord_df_D_2 = degree_correction(coord_df_D_1, coord_df_D_2)
 
-                R_difference = coord_df_R_2.combine(coord_df_R_1, lambda s1, s2: s1.combine(s2, self.difference_function))
-                A_difference = coord_df_A_2.combine(coord_df_A_1, lambda s1, s2: s1.combine(s2, self.difference_function))
-                D_difference = coord_df_D_2.combine(coord_df_D_1, lambda s1, s2: s1.combine(s2, self.difference_function))
+                R_difference = self.difference_function(coord_df_R_2, coord_df_R_1)
+                A_difference = self.difference_function(coord_df_A_2, coord_df_A_1)
+                D_difference = self.difference_function(coord_df_D_2, coord_df_D_1)
 
                 #MAX
                 R_diff_MAX = R_difference.max().to_dict()
@@ -236,88 +238,79 @@ class Difference_Between:
                 D_diff_MAX = D_difference.max().to_dict()
 
                 #RMS
-                R_diff_RMS = {col: Root_Mean_Square(R_difference[col]) for col in R_difference}
-                A_diff_RMS = {col: Root_Mean_Square(A_difference[col]) for col in A_difference}
-                D_diff_RMS = {col: Root_Mean_Square(D_difference[col]) for col in D_difference}
+                R_diff_RMS = {col: root_mean_square(R_difference[col]) for col in R_difference}
+                A_diff_RMS = {col: root_mean_square(A_difference[col]) for col in A_difference}
+                D_diff_RMS = {col: root_mean_square(D_difference[col]) for col in D_difference}
 
-                for energy_type in Coordinate_Energy_types:
-                    Coordinate_difs[energy_type]['MAX']['R'][ssl].append(R_diff_MAX[energy_type])
-                    Coordinate_difs[energy_type]['MAX']['A'][ssl].append(A_diff_MAX[energy_type])
-                    Coordinate_difs[energy_type]['MAX']['D'][ssl].append(D_diff_MAX[energy_type])
+                for energy_type in coordinate_difs:
+                    coordinate_difs[energy_type]['MAX']['R'][ssln].append(R_diff_MAX[energy_type])
+                    coordinate_difs[energy_type]['MAX']['A'][ssln].append(A_diff_MAX[energy_type])
+                    coordinate_difs[energy_type]['MAX']['D'][ssln].append(D_diff_MAX[energy_type])
 
-                    Coordinate_difs[energy_type]['RMS']['R'][ssl].append(R_diff_RMS[energy_type])
-                    Coordinate_difs[energy_type]['RMS']['A'][ssl].append(A_diff_RMS[energy_type])
-                    Coordinate_difs[energy_type]['RMS']['D'][ssl].append(D_diff_RMS[energy_type])
+                    coordinate_difs[energy_type]['RMS']['R'][ssln].append(R_diff_RMS[energy_type])
+                    coordinate_difs[energy_type]['RMS']['A'][ssln].append(A_diff_RMS[energy_type])
+                    coordinate_difs[energy_type]['RMS']['D'][ssln].append(D_diff_RMS[energy_type])
 
-        for energy_type in Coordinate_Energy_types:
-            Coordinate_difs[energy_type]['MAX']['R'] = pd.DataFrame(Coordinate_difs[energy_type]['MAX']['R'], index=short_names_of_compared)
-            Coordinate_difs[energy_type]['MAX']['A'] = pd.DataFrame(Coordinate_difs[energy_type]['MAX']['A'], index=short_names_of_compared)
-            Coordinate_difs[energy_type]['MAX']['D'] = pd.DataFrame(Coordinate_difs[energy_type]['MAX']['D'], index=short_names_of_compared)
+        for energy_type in coordinate_difs:
+            coordinate_difs[energy_type]['MAX']['R'] = pd.DataFrame(coordinate_difs[energy_type]['MAX']['R'], index=short_names)
+            coordinate_difs[energy_type]['MAX']['A'] = pd.DataFrame(coordinate_difs[energy_type]['MAX']['A'], index=short_names)
+            coordinate_difs[energy_type]['MAX']['D'] = pd.DataFrame(coordinate_difs[energy_type]['MAX']['D'], index=short_names)
 
-            Coordinate_difs[energy_type]['RMS']['R'] = pd.DataFrame(Coordinate_difs[energy_type]['RMS']['R'], index=short_names_of_compared)
-            Coordinate_difs[energy_type]['RMS']['A'] = pd.DataFrame(Coordinate_difs[energy_type]['RMS']['A'], index=short_names_of_compared)
-            Coordinate_difs[energy_type]['RMS']['D'] = pd.DataFrame(Coordinate_difs[energy_type]['RMS']['D'], index=short_names_of_compared)
+            coordinate_difs[energy_type]['RMS']['R'] = pd.DataFrame(coordinate_difs[energy_type]['RMS']['R'], index=short_names)
+            coordinate_difs[energy_type]['RMS']['A'] = pd.DataFrame(coordinate_difs[energy_type]['RMS']['A'], index=short_names)
+            coordinate_difs[energy_type]['RMS']['D'] = pd.DataFrame(coordinate_difs[energy_type]['RMS']['D'], index=short_names)
 
         if save_energy_types:
-            self.Energy_Energy_types = Energy_Energy_types
-            self.Coordinate_Energy_types = Coordinate_Energy_types
+            self.Energy_Energy_types = energy_energy_types
+            self.Coordinate_Energy_types = coordinate_energy_types
 
-        return Energy_difs, Coordinate_difs
+        return energy_difs, coordinate_difs
 
-    def Solvents_diff(self):
-        solutes  = self.Solutes
-        solvents = self.Solvents
-
+    def solvent_differences(self):
         solute_folders = {}
-        for slu in solutes:
+        for slu in self.Solutes:
             folder_path = os.path.join(self.All_Data_folder, slu)
             solute_folders[slu] = folder_path
 
-        Retrieved_data = {}
-
+        retrieved_data = {}
         for slu in solute_folders:
-            slv_data = Retvieve(multiple=True)
-            for slv in solvents:
+            solvent_data = Retrieve(multiple=True)
+            for slv in self.Solvents:
                 for file in os.listdir(solute_folders[slu]):
                     if file.endswith("_DATA.txt") and (slv in file):
                         solvent_file = os.path.join(solute_folders[slu], file)
-                        slv_data.Regular_data(solvent_file)
+                        solvent_data.regular_data(solvent_file)
                         break
-            slv_data = slv_data.Return_Data()
-            Retrieved_data[slu] = slv_data
+            solvent_data = solvent_data.return_regular_data()
+            retrieved_data[slu] = solvent_data
 
-        for slu in Retrieved_data:
-            data = Retrieved_data[slu]
-            self.All_solute_energy_diffs[slu], self.All_solute_coordinate_diffs[slu] = self.Difference_calculator(data, self.Short_Solvents)
+        for slu in retrieved_data:
+            data = retrieved_data[slu]
+            self.All_solute_energy_diffs[slu], self.All_solute_coordinate_diffs[slu] = self._difference_calculator(data, self.Short_Solvents)
 
-    def Solutes_diff(self, keep=""):
-        solutes  = self.Solutes
-        solvents = self.Solvents
-
+    def solute_differences(self, bdp_central=""):
         solute_folders = {}
-        for slu in solutes:
+        for slu in self.Solutes:
             folder_path = os.path.join(self.All_Data_folder, slu)
             solute_folders[slu] = folder_path
 
-        Retrieved_data = {}
-
-        for slv in solvents:
-            slu_data = Retvieve(multiple=True)
+        retrieved_data = {}
+        for slv in self.Solvents:
+            solute_data = Retrieve(multiple=True)
             for slu in solute_folders:
                 for file in os.listdir(solute_folders[slu]):
                     if file.endswith("_DATA.txt") and (slv in file):
                         solvent_file = os.path.join(solute_folders[slu], file)
-                        slu_data.Regular_data(solvent_file, filter_cords=True, keep=keep, solute=slu)
+                        solute_data.regular_data(solvent_file, filter_cords=True, bdp_central=bdp_central, solute=slu)
                         break
-            slu_data = slu_data.Return_Data()
-            Retrieved_data[slv] = slu_data
+            solute_data = solute_data.return_regular_data()
+            retrieved_data[slv] = solute_data
 
-        for slv in Retrieved_data:
-            data = Retrieved_data[slv]
-            self.All_solvent_energy_diffs[slv], self.All_solvent_coordinate_diffs[slv] = self.Difference_calculator(data, self.Short_Solutes)
+        for slv in retrieved_data:
+            data = retrieved_data[slv]
+            self.All_solvent_energy_diffs[slv], self.All_solvent_coordinate_diffs[slv] = self._difference_calculator(data, self.Short_Solutes)
 
-    def Display_in_neet_order(self):
-
+    def display_solvent_differences(self):
         for slu in self.All_solute_energy_diffs:
             for energy_type in self.All_solute_energy_diffs[slu]:
                 print(f'\n\t\t\t\tSolute: {slu}\n')
@@ -336,8 +329,7 @@ class Difference_Between:
                 input("Press Enter to continue...")
                 os.system('clear')
 
-    def Display_in_neet_order3(self):
-
+    def display_solute_differences(self):
         for slv in self.All_solvent_energy_diffs:
             for energy_type in self.All_solvent_energy_diffs[slv]:
                 print(f'\n\t\t\t\tSolvent: {slv}\n')
@@ -356,23 +348,40 @@ class Difference_Between:
                 input("Press Enter to continue...")
                 os.system('clear')
 
-    def Arrange_by_solute(self):
+    def _rearrange_solvent_differences_by_solute(self):
+        missing_variables = 0
+        if not self.All_solute_energy_diffs:
+            print("Missing All_solute_energy_diffs")
+            missing_variables+=1
+
+        if not self.All_solute_coordinate_diffs:
+            print("Missing All_solute_coordinate_diffs")
+            missing_variables+=1
+
+        if not self.Energy_Energy_types:
+            print("Missing Energy_Energy_types")
+            missing_variables+=1
+
+        if not self.Coordinate_Energy_types:
+            print("Missing Coordinate_Energy_types")
+            missing_variables+=1
+
+        if missing_variables > 0:
+            print(f"Missing {missing_variables} required variables for _rearrange_solvent_differences_by_solute to run\nPlease run everything in the correct order!")
+            sys.exit(1)
 
         All_energy_data = {slv: {} for slv in self.Solvents}
         for energy in self.Energy_Energy_types:
             for slv, sslv in zip(self.Solvents, self.Short_Solvents):
                 slv_columns = []
                 for slu in self.Solutes:
-                    slv_column = self.All_solute_energy_diffs[slu][energy][sslv]
-                    slv_columns.append(slv_column)
+                    slv_columns.append(self.All_solute_energy_diffs[slu][energy][sslv])
                 slv_df = pd.concat(slv_columns, axis=1)
                 slv_df.columns = self.Short_Solutes
                 slv_df['Mean'] = slv_df.mean(axis=1)
                 slv_df['Median'] = slv_df.drop(columns='Mean').median(axis=1)
                 All_energy_data[slv][energy] = slv_df
-
         self.All_solute_energy_diffs_by_slv = All_energy_data
-
 
         All_coordinate_data = {slv: {} for slv in self.Solvents}
         for slv in All_coordinate_data:
@@ -384,17 +393,16 @@ class Difference_Between:
                     for c in ['R', 'A', 'D']:
                         slv_columns = []
                         for slu in self.Solutes:
-                            slv_column = self.All_solute_coordinate_diffs[slu][energy][d_t][c][sslv]
-                            slv_columns.append(slv_column)
+                            slv_columns.append(self.All_solute_coordinate_diffs[slu][energy][d_t][c][sslv])
                         slv_df = pd.concat(slv_columns, axis=1)
                         slv_df.columns = self.Short_Solutes
                         slv_df['Mean'] = slv_df.mean(axis=1)
                         slv_df['Median'] = slv_df.drop(columns='Mean').median(axis=1)
                         All_coordinate_data[slv][energy][d_t][c] = slv_df
-
         self.All_solute_coordinate_diffs_by_slv = All_coordinate_data
 
-    def Display_in_neet_order2(self):
+    def display_solvent_differences_by_solute(self):
+        self._rearrange_solvent_differences_by_solute()
 
         for slv in self.All_solute_energy_diffs_by_slv:
             for energy_type in self.All_solute_energy_diffs_by_slv[slv]:
@@ -414,19 +422,16 @@ class Difference_Between:
                 input("Press Enter to continue...")
                 os.system('clear')
 
-    def Return_Energies(self):
-        return self.All_solute_energy_diffs
-
-    def Return_Coordinates(self):
-        return self.All_solute_coordinate_diffs
-
-    def Generate_Latex_document(self, file_name, differences=""):
-        if differences == "Solute":
+    def generate_latex_results_document(self, file_name, differences=""):
+        if differences == "":
+            print(f"No differences value given\ndifferences value needs to be one of the following:\n{"Solute"} - differences between solutes\n{"Solvent"} - differences between solvents")
+            sys.exit(1)
+        elif differences == "Solute":
             pass
         elif differences == "Solvent":
             pass
         else:
-            print(f"Incorect differences value given: {differences}\ndifferences needs to be one of the following:\n{"Solute"} - differences between solutes\n{"Solvent"} - differences between solvents")
+            print(f"Incorect differences value given: {differences}\ndifferences value needs to be one of the following:\n{"Solute"} - differences between solutes\n{"Solvent"} - differences between solvents")
             sys.exit(1)
 
         latex_doc = r"""
@@ -443,9 +448,11 @@ class Difference_Between:
 
 \begin{document}
 """
-
         for slv in self.Solvents:
-            page_caption = f"{slv} differences"
+            if differences == "Solute":
+                page_caption = f"Differences in {slv}"
+            elif differences == "Solvent":
+                page_caption = f"{slv} differences"
 
             latex_doc += rf"""
 \begin{{landscape}}
@@ -458,16 +465,13 @@ class Difference_Between:
 \renewcommand{{\arraystretch}}{{1.3}}
 \begin{{tabular}}{{ccc}}
 """
-
-            # ---------- Row 1: Energy tables ----------
+            # ---------- Energy tables ----------
             for i, energy in enumerate(self.Coordinate_Energy_types):
-                label = f"tab:{slv}_{energy}"
                 if differences == "Solvent":
-                    print(self.All_solute_energy_diffs_by_slv.keys())
                     df_energy = self.All_solute_energy_diffs_by_slv[slv][energy].copy()
                 elif differences == "Solute":
                     df_energy = self.All_solvent_energy_diffs[slv][energy].copy()
-                df_energy = df_energy.map(lambda x: f"${x:.2e}$" if isinstance(x, (float,int)) else x)
+                df_energy = df_energy.map(lambda x: f"${x:.2e}$")
                 table_body = df_energy.to_latex(escape=False)
                 sub_caption = f"{energy}"
 
@@ -475,7 +479,6 @@ class Difference_Between:
 \begin{{minipage}}{{0.33\linewidth}}
 \captionsetup{{skip=0.3em, position=top}}
 \caption*{{{sub_caption}}}
-\label{{{label}}}
 \centering
 \adjustbox{{max width=\linewidth}}{{{table_body}}}
 \end{{minipage}}"""
@@ -485,15 +488,14 @@ class Difference_Between:
                 else:
                     latex_doc += " & "
 
-            # ---------- Rows 2-4: RMS coordinate tables ----------
+            # ---------- RMS coordinate tables ----------
             for cord in ["R","A","D"]:
                 for i, energy in enumerate(self.Coordinate_Energy_types):
-                    label = f"tab:{slv}_RMS_{cord}_{energy}"
                     if differences == "Solvent":
                         df_rms = self.All_solute_coordinate_diffs_by_slv[slv][energy]['RMS'][cord].copy()
                     elif differences == "Solute":
                         df_rms = self.All_solvent_coordinate_diffs[slv][energy]['RMS'][cord].copy()
-                    df_rms = df_rms.map(lambda x: f"${x:.2e}$" if isinstance(x,(float,int)) else x)
+                    df_rms = df_rms.map(lambda x: f"${x:.2e}$")
                     table_body = df_rms.to_latex(escape=False)
                     sub_caption = f"RMS {cord}"
 
@@ -506,7 +508,6 @@ class Difference_Between:
                     latex_doc += rf"""
 \captionsetup{{skip=0.3em, position=top}}
 \caption*{{{sub_caption}}}
-\label{{{label}}}
 \centering
 \adjustbox{{max width=\linewidth}}{{{table_body}}}
 \end{{minipage}}"""
@@ -522,137 +523,9 @@ class Difference_Between:
 \end{landscape}
 \clearpage
 """
-
         latex_doc += r"\end{document}"
 
         with open(f"{file_name}", "w") as f:
             f.write(latex_doc)
 
         print("LATEX DONE!")
-
-
-
-
-
-
-
-
-
- # def Solvents_diff(self):
-    #
-    #     solutes  = self.Solutes
-    #     solvents = self.Solvents
-    #
-    #     for slu in solutes:
-    #         solute_folder = os.path.join(self.All_Data_folder, slu)
-    #         solvent_data = Retvieve(multiple=True)
-    #
-    #         for slv in solvents:
-    #             for file in os.listdir(solute_folder):
-    #                 if file.endswith("_DATA.txt") and (slv in file):
-    #                     solvent_file = os.path.join(solute_folder, file)
-    #                     solvent_data.Regular_data(solvent_file)
-    #                     break
-    #
-    #         solvent_data = solvent_data.Return_multiple()
-    #
-    #         #ENERGIES
-    #         Energy_types = []
-    #         Energy_difs = {}
-    #         for energy_type in solvent_data['Energys']:
-    #             Energy_difs[energy_type] = {}
-    #             Energy_types.append(energy_type)
-    #
-    #             for slv, sslv, slv_energy_1 in zip(solvents,
-    #                                                self.Short_Solvents,
-    #                                                solvent_data['Energys'][energy_type]):
-    #                 slv_difference_column = []
-    #
-    #                 for slv_energy_2 in solvent_data['Energys'][energy_type]:
-    #                     slv_difference = self.difference_function(slv_energy_2, slv_energy_1)
-    #                     slv_difference_column.append(slv_difference)
-    #
-    #                 Energy_difs[energy_type][sslv] = slv_difference_column
-    #
-    #             solvent_difference_df = pd.DataFrame(Energy_difs[energy_type], index=self.Short_Solvents)
-    #             Energy_difs[energy_type] = solvent_difference_df
-    #
-    #         self.All_solute_energy_diffs[slu] = Energy_difs
-    #         self.Energy_Energy_types = Energy_types
-    #
-    #         #COORDINATES
-    #         Energy_types = []
-    #         Coordinate_difs = {}
-    #         for slv, sslv, slv_coordinate_df in zip(solvents,
-    #                                                 self.Short_Solvents,
-    #                                                 solvent_data['Coordinates']):
-    #
-    #             slv_coord_df_R_1 = slv_coordinate_df[slv_coordinate_df['Name'].str.startswith('R')].reset_index(drop=True)
-    #             slv_coord_df_A_1 = slv_coordinate_df[slv_coordinate_df['Name'].str.startswith('A')].reset_index(drop=True)
-    #             slv_coord_df_D_1 = slv_coordinate_df[slv_coordinate_df['Name'].str.startswith('D')].reset_index(drop=True)
-    #
-    #             slv_coord_df_R_1.drop(slv_coord_df_R_1.columns[[0, 1]], axis=1, inplace=True)
-    #             slv_coord_df_A_1.drop(slv_coord_df_A_1.columns[[0, 1]], axis=1, inplace=True)
-    #             slv_coord_df_D_1.drop(slv_coord_df_D_1.columns[[0, 1]], axis=1, inplace=True)
-    #
-    #             if not Energy_types:
-    #                 Energy_types = list(slv_coord_df_R_1.columns)
-    #
-    #             if not Coordinate_difs:
-    #                 for energy_type in Energy_types:
-    #                     Coordinate_difs[energy_type] = {'MAX':{'R':{}, 'A':{}, 'D':{}},
-    #                                                     'RMS':{'R':{}, 'A':{}, 'D':{}}}
-    #             for energy_type in Energy_types:
-    #                 Coordinate_difs[energy_type]['MAX']['R'][sslv] = []
-    #                 Coordinate_difs[energy_type]['MAX']['A'][sslv] = []
-    #                 Coordinate_difs[energy_type]['MAX']['D'][sslv] = []
-    #
-    #                 Coordinate_difs[energy_type]['RMS']['R'][sslv] = []
-    #                 Coordinate_difs[energy_type]['RMS']['A'][sslv] = []
-    #                 Coordinate_difs[energy_type]['RMS']['D'][sslv] = []
-    #
-    #             for slv_coordinate_df2 in solvent_data['Coordinates']:
-    #                 slv_coord_df_R_2 = slv_coordinate_df2[slv_coordinate_df2['Name'].str.startswith('R')].reset_index(drop=True)
-    #                 slv_coord_df_A_2 = slv_coordinate_df2[slv_coordinate_df2['Name'].str.startswith('A')].reset_index(drop=True)
-    #                 slv_coord_df_D_2 = slv_coordinate_df2[slv_coordinate_df2['Name'].str.startswith('D')].reset_index(drop=True)
-    #
-    #                 slv_coord_df_R_2.drop(slv_coord_df_R_2.columns[[0, 1]], axis=1, inplace=True)
-    #                 slv_coord_df_A_2.drop(slv_coord_df_A_2.columns[[0, 1]], axis=1, inplace=True)
-    #                 slv_coord_df_D_2.drop(slv_coord_df_D_2.columns[[0, 1]], axis=1, inplace=True)
-    #
-    #                 slv_coord_df_D_1, slv_coord_df_D_2 = Degree_correction(slv_coord_df_D_1, slv_coord_df_D_2)
-    #
-    #                 slv_R_difference = slv_coord_df_R_2.combine(slv_coord_df_R_1, lambda s1, s2: s1.combine(s2, self.difference_function))
-    #                 slv_A_difference = slv_coord_df_A_2.combine(slv_coord_df_A_1, lambda s1, s2: s1.combine(s2, self.difference_function))
-    #                 slv_D_difference = slv_coord_df_D_2.combine(slv_coord_df_D_1, lambda s1, s2: s1.combine(s2, self.difference_function))
-    #
-    #                 #MAX
-    #                 slv_R_diff_MAX = slv_R_difference.max().to_dict()
-    #                 slv_A_diff_MAX = slv_A_difference.max().to_dict()
-    #                 slv_D_diff_MAX = slv_D_difference.max().to_dict()
-    #
-    #                 #RMS
-    #                 slv_R_diff_RMS = {col: Root_Mean_Square(slv_R_difference[col]) for col in slv_R_difference}
-    #                 slv_A_diff_RMS = {col: Root_Mean_Square(slv_A_difference[col]) for col in slv_A_difference}
-    #                 slv_D_diff_RMS = {col: Root_Mean_Square(slv_D_difference[col]) for col in slv_D_difference}
-    #
-    #                 for energy_type in Energy_types:
-    #                     Coordinate_difs[energy_type]['MAX']['R'][sslv].append(slv_R_diff_MAX[energy_type])
-    #                     Coordinate_difs[energy_type]['MAX']['A'][sslv].append(slv_A_diff_MAX[energy_type])
-    #                     Coordinate_difs[energy_type]['MAX']['D'][sslv].append(slv_D_diff_MAX[energy_type])
-    #
-    #                     Coordinate_difs[energy_type]['RMS']['R'][sslv].append(slv_R_diff_RMS[energy_type])
-    #                     Coordinate_difs[energy_type]['RMS']['A'][sslv].append(slv_A_diff_RMS[energy_type])
-    #                     Coordinate_difs[energy_type]['RMS']['D'][sslv].append(slv_D_diff_RMS[energy_type])
-    #
-    #         for energy_type in Energy_types:
-    #             Coordinate_difs[energy_type]['MAX']['R'] = pd.DataFrame(Coordinate_difs[energy_type]['MAX']['R'], index=self.Short_Solvents)
-    #             Coordinate_difs[energy_type]['MAX']['A'] = pd.DataFrame(Coordinate_difs[energy_type]['MAX']['A'], index=self.Short_Solvents)
-    #             Coordinate_difs[energy_type]['MAX']['D'] = pd.DataFrame(Coordinate_difs[energy_type]['MAX']['D'], index=self.Short_Solvents)
-    #
-    #             Coordinate_difs[energy_type]['RMS']['R'] = pd.DataFrame(Coordinate_difs[energy_type]['RMS']['R'], index=self.Short_Solvents)
-    #             Coordinate_difs[energy_type]['RMS']['A'] = pd.DataFrame(Coordinate_difs[energy_type]['RMS']['A'], index=self.Short_Solvents)
-    #             Coordinate_difs[energy_type]['RMS']['D'] = pd.DataFrame(Coordinate_difs[energy_type]['RMS']['D'], index=self.Short_Solvents)
-    #
-    #         self.All_solute_coordinate_diffs[slu] = Coordinate_difs
-    #         self.Coordinate_Energy_types = Energy_types
