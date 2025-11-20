@@ -17,8 +17,8 @@ class Difference_function:
     def __init__(self):
         self.result = None
 
-    def Symmetric_Percentage_Difference(a, b):
+    def Symmetric_Percentage_Difference(self, a, b):
          difference = abs(a - b) / max(abs(a), abs(b)) * 100
          self.result = difference
 
-         return difference
+         return self.result

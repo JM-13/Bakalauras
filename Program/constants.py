@@ -23,8 +23,14 @@ Solvent_to_shorten = {'Acetone':'Acetone',
                       'Methanol':'Methanol',
                       'TetraHydroFuran':'THF'}
 
+# Solute_to_shorten = {'BDP-nitrophenyl':'BDP-NPh',
+#                      'BDP-phenyl':'BDP-Ph',
+#                      'BDP-PP-phenyl':'BDP-PPPh',
+#                      'BDP-PP-phenyl_OMes_backward':'BDP-PPPh-OMe-out',
+#                      'BDP-PP-phenyl_OMes_forward':'BDP-PPPh-OMe-in'}
+
 Solute_to_shorten = {'BDP-nitrophenyl':'BDP-NPh',
                      'BDP-phenyl':'BDP-Ph',
                      'BDP-PP-phenyl':'BDP-PPPh',
-                     'BDP-PP-phenyl_OMes_backward':'BDP-PPPh-OMe-out',
-                     'BDP-PP-phenyl_OMes_forward':'BDP-PPPh-OMe-in'}
+                     'BDP-PP-phenyl_OMes_backward':'OMe-out',
+                     'BDP-PP-phenyl_OMes_forward':'OMe-in'}
