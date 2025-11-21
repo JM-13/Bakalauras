@@ -1,0 +1,112 @@
+{
+    "BDP-nitrophenyl": {
+        "DiMethylFormamide": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-nitrophenyl/DiMethylFormamide_BDP-nitrophenyl_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-nitrophenyl/DiMethylFormamide_BDP-nitrophenyl_DATA.txt"
+        },
+        "Methanol": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-nitrophenyl/Methanol_BDP-nitrophenyl_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-nitrophenyl/Methanol_BDP-nitrophenyl_DATA.txt"
+        },
+        "Acetone": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-nitrophenyl/Acetone_BDP-nitrophenyl_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-nitrophenyl/Acetone_BDP-nitrophenyl_SCAN.txt"
+        },
+        "DiMethylSulfoxide": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-nitrophenyl/DiMethylSulfoxide_BDP-nitrophenyl_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-nitrophenyl/DiMethylSulfoxide_BDP-nitrophenyl_DATA.txt"
+        },
+        "TetraHydroFuran": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-nitrophenyl/TetraHydroFuran_BDP-nitrophenyl_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-nitrophenyl/TetraHydroFuran_BDP-nitrophenyl_SCAN.txt"
+        }
+    },
+    "BDP-phenyl": {
+        "Methanol": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-phenyl/Methanol_BDP-phenyl_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-phenyl/Methanol_BDP-phenyl_DATA.txt"
+        },
+        "DiMethylFormamide": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-phenyl/DiMethylFormamide_BDP-phenyl_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-phenyl/DiMethylFormamide_BDP-phenyl_SCAN.txt"
+        },
+        "DiMethylSulfoxide": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-phenyl/DiMethylSulfoxide_BDP-phenyl_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-phenyl/DiMethylSulfoxide_BDP-phenyl_DATA.txt"
+        },
+        "TetraHydroFuran": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-phenyl/TetraHydroFuran_BDP-phenyl_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-phenyl/TetraHydroFuran_BDP-phenyl_DATA.txt"
+        },
+        "Acetone": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-phenyl/Acetone_BDP-phenyl_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-phenyl/Acetone_BDP-phenyl_SCAN.txt"
+        }
+    },
+    "BDP-PP-phenyl": {
+        "Acetone": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl/Acetone_BDP-PP-phenyl_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl/Acetone_BDP-PP-phenyl_SCAN.txt"
+        },
+        "DiMethylFormamide": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl/DiMethylFormamide_BDP-PP-phenyl_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl/DiMethylFormamide_BDP-PP-phenyl_SCAN.txt"
+        },
+        "TetraHydroFuran": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl/TetraHydroFuran_BDP-PP-phenyl_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl/TetraHydroFuran_BDP-PP-phenyl_DATA.txt"
+        },
+        "Methanol": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl/Methanol_BDP-PP-phenyl_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl/Methanol_BDP-PP-phenyl_SCAN.txt"
+        },
+        "DiMethylSulfoxide": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl/DiMethylSulfoxide_BDP-PP-phenyl_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl/DiMethylSulfoxide_BDP-PP-phenyl_DATA.txt"
+        }
+    },
+    "BDP-PP-phenyl_OMes_backward": {
+        "TetraHydroFuran": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_backward/TetraHydroFuran_BDP-PP-phenyl_OMes_backward_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_backward/TetraHydroFuran_BDP-PP-phenyl_OMes_backward_SCAN.txt"
+        },
+        "Methanol": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_backward/Methanol_BDP-PP-phenyl_OMes_backward_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_backward/Methanol_BDP-PP-phenyl_OMes_backward_DATA.txt"
+        },
+        "DiMethylFormamide": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_backward/DiMethylFormamide_BDP-PP-phenyl_OMes_backward_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_backward/DiMethylFormamide_BDP-PP-phenyl_OMes_backward_SCAN.txt"
+        },
+        "Acetone": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_backward/Acetone_BDP-PP-phenyl_OMes_backward_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_backward/Acetone_BDP-PP-phenyl_OMes_backward_SCAN.txt"
+        },
+        "DiMethylSulfoxide": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_backward/DiMethylSulfoxide_BDP-PP-phenyl_OMes_backward_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_backward/DiMethylSulfoxide_BDP-PP-phenyl_OMes_backward_DATA.txt"
+        }
+    },
+    "BDP-PP-phenyl_OMes_forward": {
+        "TetraHydroFuran": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_forward/TetraHydroFuran_BDP-PP-phenyl_OMes_forward_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_forward/TetraHydroFuran_BDP-PP-phenyl_OMes_forward_SCAN.txt"
+        },
+        "Acetone": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_forward/Acetone_BDP-PP-phenyl_OMes_forward_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_forward/Acetone_BDP-PP-phenyl_OMes_forward_DATA.txt"
+        },
+        "Methanol": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_forward/Methanol_BDP-PP-phenyl_OMes_forward_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_forward/Methanol_BDP-PP-phenyl_OMes_forward_DATA.txt"
+        },
+        "DiMethylFormamide": {
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_forward/DiMethylFormamide_BDP-PP-phenyl_OMes_forward_DATA.txt",
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_forward/DiMethylFormamide_BDP-PP-phenyl_OMes_forward_SCAN.txt"
+        },
+        "DiMethylSulfoxide": {
+            "SCAN": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_forward/DiMethylSulfoxide_BDP-PP-phenyl_OMes_forward_SCAN.txt",
+            "DATA": "/home/deck/Desktop/Bak_Baig/Program/Data/BDP-PP-phenyl_OMes_forward/DiMethylSulfoxide_BDP-PP-phenyl_OMes_forward_DATA.txt"
+        }
+    }
+}
