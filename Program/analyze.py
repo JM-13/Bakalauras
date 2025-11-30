@@ -422,7 +422,7 @@ class Analyze:
                 input("Press Enter to continue...")
                 os.system('clear')
 
-    def generate_latex_results_document(self, file_name, differences=""):
+    def generate_latex_results_document(self, file_name, differences="", use_solvent_by_solute=True):
         if differences == "":
             print(f"No differences value given\ndifferences value needs to be one of the following:\n{"Solute"} - differences between solutes\n{"Solvent"} - differences between solvents")
             sys.exit(1)
@@ -433,6 +433,9 @@ class Analyze:
         else:
             print(f"Incorect differences value given: {differences}\ndifferences value needs to be one of the following:\n{"Solute"} - differences between solutes\n{"Solvent"} - differences between solvents")
             sys.exit(1)
+
+        if use_solvent_by_solute:
+            self._rearrange_solvent_differences_by_solute()
 
         latex_doc = r"""
 \documentclass{article}
@@ -448,11 +451,14 @@ class Analyze:
 
 \begin{document}
 """
-        for slv in self.Solvents:
+        for slv, slu in zip(self.Solvents, self.Solutes):
             if differences == "Solute":
                 page_caption = f"Differences in {slv}"
             elif differences == "Solvent":
-                page_caption = f"{slv} differences"
+                if use_solvent_by_solute:
+                    page_caption = f"{slv} differences"
+                else:
+                    page_caption = f"{slu} solute"
 
             latex_doc += rf"""
 \begin{{landscape}}
@@ -467,10 +473,14 @@ class Analyze:
 """
             # ---------- Energy tables ----------
             for i, energy in enumerate(self.Coordinate_Energy_types):
-                if differences == "Solvent":
-                    df_energy = self.All_solute_energy_diffs_by_slv[slv][energy].copy()
-                elif differences == "Solute":
+                if differences == "Solute":
                     df_energy = self.All_solvent_energy_diffs[slv][energy].copy()
+                elif differences == "Solvent":
+                    if use_solvent_by_solute:
+                        df_energy = self.All_solute_energy_diffs_by_slv[slv][energy].copy()
+                    else:
+                        df_energy = self.All_solute_energy_diffs[slv][energy].copy()
+
                 df_energy = df_energy.map(lambda x: f"${x:.2e}$")
                 table_body = df_energy.to_latex(escape=False)
                 sub_caption = f"{energy}"
@@ -491,10 +501,14 @@ class Analyze:
             # ---------- RMS coordinate tables ----------
             for cord in ["R","A","D"]:
                 for i, energy in enumerate(self.Coordinate_Energy_types):
-                    if differences == "Solvent":
-                        df_rms = self.All_solute_coordinate_diffs_by_slv[slv][energy]['RMS'][cord].copy()
-                    elif differences == "Solute":
+                    if differences == "Solute":
                         df_rms = self.All_solvent_coordinate_diffs[slv][energy]['RMS'][cord].copy()
+                    elif differences == "Solvent":
+                        if use_solvent_by_solute:
+                            df_rms = self.All_solute_coordinate_diffs_by_slv[slv][energy]['RMS'][cord].copy()
+                        else:
+                            df_rms = self.All_solute_coordinate_diffs[slv][energy]['RMS'][cord].copy()
+
                     df_rms = df_rms.map(lambda x: f"${x:.2e}$")
                     table_body = df_rms.to_latex(escape=False)
                     sub_caption = f"RMS {cord}"
