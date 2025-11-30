@@ -4,6 +4,10 @@ S0_folder = '/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0'
 S1_folder = '/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1'
 Scan_folder = '/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/3-scans'
 
+Save_optimized_coordinates = False
+Use_angstroms_and_degrees = False
+
+
 Filename_to_Solvent = {'acet':'Acetone',
                        'dmfm':'DiMethylFormamide',
                        'dmso':'DiMethylSulfoxide',
