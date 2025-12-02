@@ -311,6 +311,7 @@ class Analyze:
             self.All_solvent_energy_diffs[slv], self.All_solvent_coordinate_diffs[slv] = self._difference_calculator(data, self.Short_Solutes)
 
     def display_solvent_differences(self):
+        pd.set_option('display.float_format', '{:.2e}'.format)
         for slu in self.All_solute_energy_diffs:
             for energy_type in self.All_solute_energy_diffs[slu]:
                 print(f'\n\t\t\t\tSolute: {slu}\n')
@@ -330,6 +331,7 @@ class Analyze:
                 os.system('clear')
 
     def display_solute_differences(self):
+        pd.set_option('display.float_format', '{:.2e}'.format)
         for slv in self.All_solvent_energy_diffs:
             for energy_type in self.All_solvent_energy_diffs[slv]:
                 print(f'\n\t\t\t\tSolvent: {slv}\n')
@@ -402,6 +404,7 @@ class Analyze:
         self.All_solute_coordinate_diffs_by_slv = All_coordinate_data
 
     def display_solvent_differences_by_solute(self):
+        pd.set_option('display.float_format', '{:.2e}'.format)
         self._rearrange_solvent_differences_by_solute()
 
         for slv in self.All_solute_energy_diffs_by_slv:
@@ -422,13 +425,23 @@ class Analyze:
                 input("Press Enter to continue...")
                 os.system('clear')
 
-    def generate_latex_results_document(self, file_name, differences="", use_solvent_by_solute=True):
+    def generate_latex_results_document(self,
+                                        file_name="",
+                                        differences="",
+                                        use_solvent_by_solute=True):
         if differences == "":
             print(f"No differences value given\ndifferences value needs to be one of the following:\n{"Solute"} - differences between solutes\n{"Solvent"} - differences between solvents")
             sys.exit(1)
         elif differences == "Solute":
+            if not file_name:
+                if use_solvent_by_solute:
+                    file_name_d = "Differences_between_solvents_by_solute.tex"
+                else:
+                    file_name_d = "Differences_between_solutes.tex"
             pass
         elif differences == "Solvent":
+            if not file_name:
+                file_name_d = "Differences_between_solvents.tex"
             pass
         else:
             print(f"Incorect differences value given: {differences}\ndifferences value needs to be one of the following:\n{"Solute"} - differences between solutes\n{"Solvent"} - differences between solvents")
@@ -436,6 +449,9 @@ class Analyze:
 
         if use_solvent_by_solute:
             self._rearrange_solvent_differences_by_solute()
+
+        if not file_name:
+            file_name = file_name_d
 
         latex_doc = r"""
 \documentclass{article}
@@ -457,13 +473,15 @@ class Analyze:
             elif differences == "Solvent":
                 if use_solvent_by_solute:
                     page_caption = f"{slv} differences"
+                    page_caption = page_caption.replace("_", r"\_")
                 else:
                     page_caption = f"{slu} solute"
+                    page_caption = page_caption.replace("_", r"\_")
 
             latex_doc += rf"""
 \begin{{landscape}}
 \begin{{center}}
-    \LARGE \textbf{{{page_caption}}}
+\LARGE \textbf{{{page_caption}}}
 \end{{center}}
 \vspace{{1em}}
 \begin{{table}}[H]
@@ -479,7 +497,7 @@ class Analyze:
                     if use_solvent_by_solute:
                         df_energy = self.All_solute_energy_diffs_by_slv[slv][energy].copy()
                     else:
-                        df_energy = self.All_solute_energy_diffs[slv][energy].copy()
+                        df_energy = self.All_solute_energy_diffs[slu][energy].copy()
 
                 df_energy = df_energy.map(lambda x: f"${x:.2e}$")
                 table_body = df_energy.to_latex(escape=False)
@@ -507,7 +525,7 @@ class Analyze:
                         if use_solvent_by_solute:
                             df_rms = self.All_solute_coordinate_diffs_by_slv[slv][energy]['RMS'][cord].copy()
                         else:
-                            df_rms = self.All_solute_coordinate_diffs[slv][energy]['RMS'][cord].copy()
+                            df_rms = self.All_solute_coordinate_diffs[slu][energy]['RMS'][cord].copy()
 
                     df_rms = df_rms.map(lambda x: f"${x:.2e}$")
                     table_body = df_rms.to_latex(escape=False)
