@@ -1,11 +1,13 @@
-# Folders of files
+from tools.calculation_functions import DifferenceFunction
 
+# Folders of files
 S0_folder = '/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/1-S0'
 S1_folder = '/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/2-S1'
 Scan_folder = '/home/deck/Desktop/Bak_Baig/(JV)/bdpolarity/3-scans'
 
 Save_optimized_coordinates = False
 Use_angstroms_and_degrees = False
+difference_function = DifferenceFunction.symmetric_percentage_difference
 
 
 Filename_to_Solvent = {'acet':'Acetone',
