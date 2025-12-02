@@ -19,11 +19,12 @@ function = DifferenceFunction.symmetric_percentage_difference
 analasys = Analyze(folder, function, solutes, solvents, solutes_shorten, solvents_shorten)
 
 analasys.solvent_differences()
-analasys.display_solvent_differences()
-analasys.display_solvent_differences_by_solute()
-analasys.generate_latex_results_document(solvent_filename, "Solvent")
+# analasys.display_solvent_differences()
+# analasys.display_solvent_differences_by_solute()
+analasys.generate_latex_results_document(differences="Solvent",
+                                         use_solvent_by_solute=False)
 
-analasys.solute_differences(bdp_central="A")
-analasys.display_solute_differences()
-analasys.generate_latex_results_document(solute_filename, "Solute")
+# analasys.solute_differences(bdp_central="A")
+# analasys.display_solute_differences()
+# analasys.generate_latex_results_document(solute_filename, "Solute")
 
