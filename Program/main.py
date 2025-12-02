@@ -8,6 +8,7 @@ import constants as c
 from tools.catalogue_data import Catalogue
 from tools.extract_values import Extract
 from tools.calculation_functions import convert_coordinate_measurement
+from analyze import Analyze
 
 
 Working_dir = os.getenv("PWD", os.getcwd())
@@ -18,22 +19,27 @@ D_endings = ['optS0', 'tdS0', 'optS1', 'optR1']
 S_endings = ['fa', 'fb']
 
 
+def user_input_check(input_text):
+    print(f"")
+    user_choice = None
+    answer = None
+    while not user_choice:
+        user_choice = input(f"{input_text} yes/no\n")
+        if user_choice == "yes":
+            answer = True
+            pass
+        elif user_choice == "no":
+            answer = False
+            pass
+        else:
+            print(f"{user_choice} is not a yes/no answer, please try again")
+            user_choice = None
+    return answer
 
-to_extract_data = None
-while not to_extract_data:
-    to_extract_data = input("Do you want to extract data from the raw .log files\nYes/No")
 
-    if to_extract_data == 'Yes':
-        pass
-    elif to_extract_data == 'No':
-        pass
-    else:
-        print(f'{to_extract_data} is not a Yes/No answer, please try again')
-        to_extract_data = None
-
-
-if to_extract_data == 'Yes':
-    print(f'Cataloging .log data in {c.S0_folder}, {c.S1_folder} folders')
+to_extract_data = user_input_check('Do you want to extract data from the raw .log files?')
+if to_extract_data:
+    print(f'\nCataloging .log data in {c.S0_folder}, {c.S1_folder} folders')
     Catalogue(folders = [c.S0_folder, c.S1_folder],
             filename_endings = D_endings,
             save_as_json = True,
@@ -43,7 +49,7 @@ if to_extract_data == 'Yes':
         Data_files = json.load(file)
 
 
-    print(f'Extracting data from .log files:')
+    print(f'\nExtracting data from .log files:')
     for solute in Data_files:
 
         Save_folder_name = c.Filename_to_Solute[solute]
@@ -52,7 +58,7 @@ if to_extract_data == 'Yes':
 
         for solvent in Data_files[solute]:
 
-            print(f"\textracting {solute}-{solvent} file data")
+            print(f"extracting {solute}-{solvent} file data")
 
             Save_file_name = f"{c.Filename_to_Solvent[solvent]}_{c.Filename_to_Solute[solute]}_DATA.txt"
             Save_file_path = os.path.join(Save_folder_path, Save_file_name)
@@ -121,33 +127,21 @@ if to_extract_data == 'Yes':
                     f.write(Coordinates_combined.to_string(index=False))
                     f.write("\n")
 
-            print(f'\twritten data to {Save_file_path}\n')
+            print(f'written data to {Save_file_path}')
 
 
-to_extract_scan_data = None
-while not to_extract_scan_data:
-    to_extract_data = input("Do you want to extract data from the raw scan .log files\nYes/No")
-
-    if to_extract_scan_data == 'Yes':
-        pass
-    elif to_extract_scan_data == 'No':
-        pass
-    else:
-        print(f'{to_extract_scan_data} is not a Yes/No answer, please try again')
-        to_extract_scan_data = None
-
-
-if to_extract_scan_data == 'Yes':
-    print(f'Cataloging scan .log data in {c.Scan_folder} folder')
-        Catalogue(folders = [c.Scan_folder],
-                filename_endings = S_endings,
-                save_as_json = True,
-                save_location = Working_dir).Scan_Files()
+to_extract_scan = user_input_check('Do you want to extract data from the raw scan .log files?')
+if to_extract_scan:
+    print(f'\nCataloging scan .log data in {c.Scan_folder} folder')
+    Catalogue(folders = [c.Scan_folder],
+            filename_endings = S_endings,
+            save_as_json = True,
+            save_location = Working_dir).Scan_Files()
 
     with open("Scan_files.json", "r") as file:
         Data_files = json.load(file)
 
-    print(f'Extracting data from scan .log files:')
+    print(f'\nExtracting data from scan .log files:')
     for solute in Data_files:
 
         Save_folder_name = c.Filename_to_Solute[solute]
@@ -163,7 +157,7 @@ if to_extract_scan_data == 'Yes':
 
             for direction in Data_files[solute][solvent]:
 
-                print(f"\textracting {solute}-{solvent}-S1-fscan-{direction} file data")
+                print(f"extracting {solute}-{solvent}-S1-fscan-{direction} file data")
 
                 Extractor = Extract(Data_files[solute][solvent][direction])
 
@@ -214,11 +208,11 @@ if to_extract_scan_data == 'Yes':
                 f.write(f"{'Opposit'} = {Data_combined['fb']['Fixed'][1]}\n\n")
                 f.write(Data_combined['fb']['Data'].to_string(index=False))
 
-            print(f'\twritten data to {Save_file_path}\n')
+            print(f'written data to {Save_file_path}')
 
 
-if to_extract_data == 'Yes' or to_extract_scan_data == 'Yes':
-    print(f'Cataloging processed data in {Data_folder} folder')
+if to_extract_data or to_extract_scan:
+    print(f'\nCataloging processed data in {Data_folder} folder')
     processed_data_folders = []
     for i in list(c.Filename_to_Solute.values()):
         folder_path = os.path.join(Data_folder, i)
@@ -229,5 +223,77 @@ if to_extract_data == 'Yes' or to_extract_scan_data == 'Yes':
             save_location = Data_folder).Processed_Data_Files([1,2,0])
 
     print(f'\nAll data has been extracted and saved to folder {Data_folder}')
+
+
+to_analyze = user_input_check("Do you want to analyze the extracted data?")
+if to_analyze:
+    analasys = Analyze(Data_folder,
+                       c.difference_function,
+                       c.Solute_to_shorten.keys(),
+                       c.Solvent_to_shorten.keys(),
+                       c.Solute_to_shorten.values(),
+                       c.Solvent_to_shorten.values())
+
+    to_calc_solvent_diff = user_input_check("Do you want to calculate differences between solvents?")
+    if to_calc_solvent_diff:
+        analasys.solvent_differences()
+
+        to_display_solvent_diff = user_input_check("Display solvent differences?")
+        if to_display_solvent_diff:
+            analasys.display_solvent_differences()
+
+        to_generate_latex = user_input_check("Do you want to save the diplayed differences to a pdf file?")
+        if to_generate_latex:
+            file_name = input("Please input a filename with no file type (if no name is given a default name will be used)")
+            if file_name:
+                latex_file_name = file_name + '.tex'
+            else:
+                latex_file_name = ""
+            analasys.generate_latex_results_document(file_name=latex_file_name,
+                                                     differences="Solvent",
+                                                     use_solvent_by_solute=False)
+
+        to_display_solvent_diff_by_solute = user_input_check("Display solvent differences by solute?")
+        if to_display_solvent_diff_by_solute:
+            analasys.display_solvent_differences_by_solute()
+
+        to_generate_latex = user_input_check("Do you want to save the diplayed differences to a pdf file?")
+        if to_generate_latex:
+            file_name = input("Please input a filename with no file type (if no name is given a default name will be used)")
+            if file_name:
+                latex_file_name = file_name + '.tex'
+            else:
+                latex_file_name = ""
+            analasys.generate_latex_results_document(file_name=latex_file_name,
+                                                     differences="Solvent",
+                                                     use_solvent_by_solute=True)
+
+    to_calc_solute_diff = user_input_check("Do you want to calculate differences between solutes?")
+    if to_calc_solute_diff:
+        bdp_central = input(f"Pick which central atoms to compare:\n{"A"} - All 21 atoms\n{"H"} - Exclude replaced Hydrogen atoms\n{"NoH"} - No Hydrogen atoms")
+        analasys.solute_differences(bdp_central)
+
+        to_display_solute_diff = user_input_check("Display solute differences?")
+        if to_display_solute_diff:
+            analasys.display_solute_differences()
+
+        to_generate_latex = user_input_check("Do you want to save the diplayed differences to a pdf file?")
+        if to_generate_latex:
+            file_name = input("Please input a filename with no file type (if no name is given a default name will be used)")
+            if file_name:
+                latex_file_name = file_name + '.tex'
+            else:
+                latex_file_name = ""
+            analasys.generate_latex_results_document(file_name=latex_file_name,
+                                                     differences="Solute")
+
+#Add the Use_angstroms_and_degrees option to analyze and give an option to choose
+#Convert tex to pdf
+
+
+
+
+
+
 
 
