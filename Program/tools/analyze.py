@@ -4,6 +4,7 @@ import pandas as pd
 import math
 import io
 import time
+import subprocess
 import sys
 
 def degree_correction(df1, df2, scale=10000):
@@ -18,11 +19,17 @@ def degree_correction(df1, df2, scale=10000):
     a_corrected = np.where(mask1, np.round(a*scale - pi2*scale)/scale, a)
     b_corrected = np.where(mask2, np.round(b*scale - pi2*scale)/scale, b)
 
+    # if (a != a_corrected).any():
+    #     diff_num_a = np.sum(a != a_corrected)
+    #     print(f'df1 was corrected {diff_num_a} times')
+    # if (b != b_corrected).any():
+    #     diff_num_b = np.sum(b != b_corrected)
+    #     print(f'df2 was corrected {diff_num_b} times')
+
     df1_corrected = pd.DataFrame(a_corrected, columns=df1.columns)
     df2_corrected = pd.DataFrame(b_corrected, columns=df2.columns)
 
     return df1_corrected, df2_corrected
-
 
 def root_mean_square(pd_series):
     rms = np.sqrt((pd_series**2).mean())
@@ -165,7 +172,12 @@ class Analyze:
         self.All_solvent_energy_diffs_by_slu = {}
         self.All_solvent_coordinate_diffs_by_slu = {}
 
-    def _difference_calculator(self, data, short_names, save_energy_types=True):
+    def _difference_calculator(self,
+                               data,
+                               short_names,
+                               use_angstroms,
+                               use_degrees,
+                               save_energy_types=True):
         energy_difs = {}
         coordinate_difs = {}
 
@@ -191,6 +203,8 @@ class Analyze:
 
         #COORDINATES
         for ssln, coordinate_df in zip(short_names, data['Coordinates']):
+            convert_a = True
+            convert_d = True
 
             coord_df_R_1 = coordinate_df[coordinate_df['Name'].str.startswith('R')].reset_index(drop=True)
             coord_df_A_1 = coordinate_df[coordinate_df['Name'].str.startswith('A')].reset_index(drop=True)
@@ -199,6 +213,8 @@ class Analyze:
             coord_df_R_1.drop(coord_df_R_1.columns[[0, 1]], axis=1, inplace=True)
             coord_df_A_1.drop(coord_df_A_1.columns[[0, 1]], axis=1, inplace=True)
             coord_df_D_1.drop(coord_df_D_1.columns[[0, 1]], axis=1, inplace=True)
+
+            refrence_df_D_1 = coord_df_D_1
 
             if not coordinate_energy_types:
                 coordinate_energy_types = list(coord_df_R_1.columns)
@@ -226,7 +242,22 @@ class Analyze:
                 coord_df_A_2.drop(coord_df_A_2.columns[[0, 1]], axis=1, inplace=True)
                 coord_df_D_2.drop(coord_df_D_2.columns[[0, 1]], axis=1, inplace=True)
 
-                coord_df_D_1, coord_df_D_2 = degree_correction(coord_df_D_1, coord_df_D_2)
+                # print(f"{ssln} of df1:")
+                coord_df_D_1, coord_df_D_2 = degree_correction(refrence_df_D_1, coord_df_D_2)
+
+                if use_angstroms:
+                    if convert_a:
+                        coord_df_R_1 = coord_df_R_1 * 0.529177249
+                        convert_a = False
+                    coord_df_R_2 = coord_df_R_2 * 0.529177249
+
+                if use_degrees:
+                    if convert_d:
+                        coord_df_A_1 = np.degrees(coord_df_A_1)
+                        convert_d = False
+                    coord_df_A_2 = np.degrees(coord_df_A_2)
+                    coord_df_D_1 = np.degrees(coord_df_D_1)
+                    coord_df_D_2 = np.degrees(coord_df_D_2)
 
                 R_difference = self.difference_function(coord_df_R_2, coord_df_R_1)
                 A_difference = self.difference_function(coord_df_A_2, coord_df_A_1)
@@ -266,7 +297,7 @@ class Analyze:
 
         return energy_difs, coordinate_difs
 
-    def solvent_differences(self):
+    def solvent_differences(self, use_angstroms=False, use_degrees=False):
         solute_folders = {}
         for slu in self.Solutes:
             folder_path = os.path.join(self.All_Data_folder, slu)
@@ -285,10 +316,11 @@ class Analyze:
             retrieved_data[slu] = solvent_data
 
         for slu in retrieved_data:
+            # print("")
             data = retrieved_data[slu]
-            self.All_solute_energy_diffs[slu], self.All_solute_coordinate_diffs[slu] = self._difference_calculator(data, self.Short_Solvents)
+            self.All_solute_energy_diffs[slu], self.All_solute_coordinate_diffs[slu] = self._difference_calculator(data, self.Short_Solvents, use_angstroms, use_degrees)
 
-    def solute_differences(self, bdp_central=""):
+    def solute_differences(self, use_angstroms=False, use_degrees=False, bdp_central=""):
         solute_folders = {}
         for slu in self.Solutes:
             folder_path = os.path.join(self.All_Data_folder, slu)
@@ -307,8 +339,9 @@ class Analyze:
             retrieved_data[slv] = solute_data
 
         for slv in retrieved_data:
+            # print("")
             data = retrieved_data[slv]
-            self.All_solvent_energy_diffs[slv], self.All_solvent_coordinate_diffs[slv] = self._difference_calculator(data, self.Short_Solutes)
+            self.All_solvent_energy_diffs[slv], self.All_solvent_coordinate_diffs[slv] = self._difference_calculator(data, self.Short_Solutes, use_angstroms, use_degrees)
 
     def display_solvent_differences(self):
         pd.set_option('display.float_format', '{:.2e}'.format)
@@ -428,20 +461,22 @@ class Analyze:
     def generate_latex_results_document(self,
                                         file_name="",
                                         differences="",
-                                        use_solvent_by_solute=True):
+                                        use_solvent_by_solute=True,
+                                        generate_pdf=True,
+                                        clean_files=True):
         if differences == "":
             print(f"No differences value given\ndifferences value needs to be one of the following:\n{"Solute"} - differences between solutes\n{"Solvent"} - differences between solvents")
             sys.exit(1)
-        elif differences == "Solute":
-            if not file_name:
-                if use_solvent_by_solute:
-                    file_name_d = "Differences_between_solvents_by_solute.tex"
-                else:
-                    file_name_d = "Differences_between_solutes.tex"
-            pass
         elif differences == "Solvent":
             if not file_name:
-                file_name_d = "Differences_between_solvents.tex"
+                if use_solvent_by_solute:
+                    file_name_d = "Differences_between_solvents_by_solute"
+                else:
+                    file_name_d = "Differences_between_solvents"
+            pass
+        elif differences == "Solute":
+            if not file_name:
+                file_name_d = "Differences_between_solutes"
             pass
         else:
             print(f"Incorect differences value given: {differences}\ndifferences value needs to be one of the following:\n{"Solute"} - differences between solutes\n{"Solvent"} - differences between solvents")
@@ -452,6 +487,8 @@ class Analyze:
 
         if not file_name:
             file_name = file_name_d
+
+        file_full_path = os.path.join(self.All_Data_folder, file_name+'.tex')
 
         latex_doc = r"""
 \documentclass{article}
@@ -557,7 +594,26 @@ class Analyze:
 """
         latex_doc += r"\end{document}"
 
-        with open(f"{file_name}", "w") as f:
+        with open(f"{file_full_path}", "w") as f:
             f.write(latex_doc)
 
-        print("LATEX DONE!")
+        if generate_pdf:
+            tex_file = file_full_path
+            pdf_file = os.path.join(self.All_Data_folder, file_name + '.pdf')
+            log_file = os.path.join(self.All_Data_folder, file_name + '.log')
+            aux_file = os.path.join(self.All_Data_folder, file_name + '.aux')
+
+            subprocess.run(
+                            ["pdflatex", "-interaction=nonstopmode", tex_file],
+                            cwd=self.All_Data_folder,
+                            stdout=subprocess.DEVNULL)
+
+            if clean_files:
+                os.remove(tex_file)
+                os.remove(log_file)
+                os.remove(aux_file)
+            print(f'PDF file created at location {pdf_file}')
+
+        else:
+            print(f'PDF file created at location {file_full_path}')
+

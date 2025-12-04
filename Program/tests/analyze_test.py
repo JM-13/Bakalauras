@@ -1,4 +1,4 @@
-from analyze import Analyze
+from tools.analyze import Analyze
 from tools.calculation_functions import DifferenceFunction
 import constants as c
 import pandas as pd
