@@ -7,8 +7,7 @@ import json
 import constants as c
 from tools.catalogue_data import Catalogue
 from tools.extract_values import Extract
-from tools.calculation_functions import convert_coordinate_measurement
-from analyze import Analyze
+from tools.analyze import Analyze
 
 
 Working_dir = os.getenv("PWD", os.getcwd())
@@ -22,19 +21,15 @@ S_endings = ['fa', 'fb']
 def user_input_check(input_text):
     print(f"")
     user_choice = None
-    answer = None
     while not user_choice:
         user_choice = input(f"{input_text} yes/no\n")
         if user_choice == "yes":
-            answer = True
-            pass
+            return True
         elif user_choice == "no":
-            answer = False
-            pass
+            return False
         else:
             print(f"{user_choice} is not a yes/no answer, please try again")
             user_choice = None
-    return answer
 
 
 to_extract_data = user_input_check('Do you want to extract data from the raw .log files?')
@@ -101,9 +96,6 @@ if to_extract_data:
 
                     relavent_coordinates = Coordinates[-1]
                     relavent_optimized_coordinates = Optimized_Coordinates[-1]
-
-                    if c.Use_angstroms_and_degrees:
-                        relavent_coordinates['New X'] = relavent_coordinates.apply(convert_coordinate_measurement, axis=1)
 
                     Coordinates_combined[file_type]           = list(relavent_coordinates['New X'])
                     Optimized_coordinates_combined[file_type] = list(relavent_optimized_coordinates['Value'])
@@ -234,61 +226,46 @@ if to_analyze:
                        c.Solute_to_shorten.values(),
                        c.Solvent_to_shorten.values())
 
+    to_use_angstroms = user_input_check("Convert distances to angstroms for the analasys?")
+    to_use_degrees   = user_input_check("Convert angles to degrees for the analasys?")
+
     to_calc_solvent_diff = user_input_check("Do you want to calculate differences between solvents?")
     if to_calc_solvent_diff:
-        analasys.solvent_differences()
+        analasys.solvent_differences(use_angstroms=to_use_angstroms, use_degrees=to_use_degrees)
+        print(f'\tDifferences calculated')
 
         to_display_solvent_diff = user_input_check("Display solvent differences?")
         if to_display_solvent_diff:
             analasys.display_solvent_differences()
 
-        to_generate_latex = user_input_check("Do you want to save the diplayed differences to a pdf file?")
+        to_generate_latex = user_input_check("Do you want to save the differences to a pdf file?")
         if to_generate_latex:
             file_name = input("Please input a filename with no file type (if no name is given a default name will be used)")
-            if file_name:
-                latex_file_name = file_name + '.tex'
-            else:
-                latex_file_name = ""
-            analasys.generate_latex_results_document(file_name=latex_file_name,
-                                                     differences="Solvent",
-                                                     use_solvent_by_solute=False)
+            analasys.generate_latex_results_document(file_name=file_name, differences="Solvent", use_solvent_by_solute=False)
 
         to_display_solvent_diff_by_solute = user_input_check("Display solvent differences by solute?")
         if to_display_solvent_diff_by_solute:
             analasys.display_solvent_differences_by_solute()
 
-        to_generate_latex = user_input_check("Do you want to save the diplayed differences to a pdf file?")
+        to_generate_latex = user_input_check("Do you want to save the differences to a pdf file?")
         if to_generate_latex:
             file_name = input("Please input a filename with no file type (if no name is given a default name will be used)")
-            if file_name:
-                latex_file_name = file_name + '.tex'
-            else:
-                latex_file_name = ""
-            analasys.generate_latex_results_document(file_name=latex_file_name,
-                                                     differences="Solvent",
-                                                     use_solvent_by_solute=True)
+            analasys.generate_latex_results_document(file_name=file_name, differences="Solvent", use_solvent_by_solute=True)
 
     to_calc_solute_diff = user_input_check("Do you want to calculate differences between solutes?")
     if to_calc_solute_diff:
-        bdp_central = input(f"Pick which central atoms to compare:\n{"A"} - All 21 atoms\n{"H"} - Exclude replaced Hydrogen atoms\n{"NoH"} - No Hydrogen atoms")
-        analasys.solute_differences(bdp_central)
+        bdp_central = input(f"Pick which central atoms to compare:\n{"A"} - All 21 atoms\n{"H"} - Exclude replaced Hydrogen atoms\n{"NoH"} - No Hydrogen atoms\n")
+        analasys.solute_differences(use_angstroms=to_use_angstroms, use_degrees=to_use_degrees, bdp_central=bdp_central)
+        print(f'\tDifferences calculated')
 
         to_display_solute_diff = user_input_check("Display solute differences?")
         if to_display_solute_diff:
             analasys.display_solute_differences()
 
-        to_generate_latex = user_input_check("Do you want to save the diplayed differences to a pdf file?")
+        to_generate_latex = user_input_check("Do you want to save the differences to a pdf file?")
         if to_generate_latex:
             file_name = input("Please input a filename with no file type (if no name is given a default name will be used)")
-            if file_name:
-                latex_file_name = file_name + '.tex'
-            else:
-                latex_file_name = ""
-            analasys.generate_latex_results_document(file_name=latex_file_name,
-                                                     differences="Solute")
-
-#Add the Use_angstroms_and_degrees option to analyze and give an option to choose
-#Convert tex to pdf
+            analasys.generate_latex_results_document(file_name=file_name, differences="Solute")
 
 
 
