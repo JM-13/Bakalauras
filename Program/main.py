@@ -240,7 +240,7 @@ if to_analyze:
 
         to_generate_latex = user_input_check("Do you want to save the differences to a pdf file?")
         if to_generate_latex:
-            file_name = input("Please input a filename with no file type (if no name is given a default name will be used)")
+            file_name = input("Please input a filename with no file type (if no name is given a default name will be used)\n")
             analasys.generate_latex_results_document(file_name=file_name, differences="Solvent", use_solvent_by_solute=False)
 
         to_display_solvent_diff_by_solute = user_input_check("Display solvent differences by solute?")
@@ -249,13 +249,13 @@ if to_analyze:
 
         to_generate_latex = user_input_check("Do you want to save the differences to a pdf file?")
         if to_generate_latex:
-            file_name = input("Please input a filename with no file type (if no name is given a default name will be used)")
+            file_name = input("Please input a filename with no file type (if no name is given a default name will be used)\n")
             analasys.generate_latex_results_document(file_name=file_name, differences="Solvent", use_solvent_by_solute=True)
 
     to_calc_solute_diff = user_input_check("Do you want to calculate differences between solutes?")
     if to_calc_solute_diff:
         bdp_central = input(f"Pick which central atoms to compare:\n{"A"} - All 21 atoms\n{"H"} - Exclude replaced Hydrogen atoms\n{"NoH"} - No Hydrogen atoms\n")
-        analasys.solute_differences(use_angstroms=to_use_angstroms, use_degrees=to_use_degrees, bdp_central=bdp_central)
+        analasys.solute_differences(use_angstroms=to_use_angstroms, use_degrees=to_use_degrees, bdp_central=bdp_central, mapping=c.Atom_number_conversion)
         print(f'\tDifferences calculated')
 
         to_display_solute_diff = user_input_check("Display solute differences?")
@@ -264,7 +264,7 @@ if to_analyze:
 
         to_generate_latex = user_input_check("Do you want to save the differences to a pdf file?")
         if to_generate_latex:
-            file_name = input("Please input a filename with no file type (if no name is given a default name will be used)")
+            file_name = input("Please input a filename with no file type (if no name is given a default name will be used)\n")
             analasys.generate_latex_results_document(file_name=file_name, differences="Solute")
 
 

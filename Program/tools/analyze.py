@@ -8,6 +8,10 @@ import subprocess
 import sys
 
 def degree_correction(df1, df2, scale=10000):
+    # print(f'df1:\n{df1}')
+    # print(f'\ndf2:\n{df2}')
+
+
     pi2 = 2 * math.pi
 
     a = df1.to_numpy(dtype=float)
@@ -83,9 +87,25 @@ def filter_by_atom_number(df, solute, bdp_central=""):
     allowed_set = set(atoms[bdp_central][solute])
     filter_df["valid"] = filter_df["nums"].apply(lambda group: all(x in allowed_set for x in group))
 
+    # print(filter_df)
+    # sys.exit(1)
+
     df_filtered = df[filter_df["valid"]]
 
     return df_filtered
+
+def renumber_atoms_to_match(df1, df2, matching):
+    filter_df = pd.DataFrame()
+    filter_df["nums"] = df1["Definition"].str.findall(r'\d+').apply(lambda x: list(map(int, x)))
+    filter_df["converted_nums"] = (filter_df["nums"].explode().map(matching).groupby(level=0).apply(list))
+
+    df2["nums"] = df2["Definition"].str.findall(r'\d+').apply(lambda x: list(map(int, x)))
+    df2_map = df2.set_index(df2["nums"].apply(lambda x: frozenset(x)))
+    df2_sorted = df2_map.loc[filter_df["converted_nums"].apply(lambda x: frozenset(x))].reset_index(drop=True)
+    df2_sorted.drop("nums", axis=1, inplace=True)
+
+    return df2_sorted
+
 
 class Retrieve:
     def __init__(self, multiple=False):
@@ -97,7 +117,9 @@ class Retrieve:
         self.scan_data = {'fa':None,
                           'fb':None}
 
-    def regular_data(self, filepath, filter_cords=False, bdp_central="", solute=""):
+    def regular_data(self, filepath,
+                     filter_cords=False, bdp_central="", solute="",
+                     reorder_data=False, refrence_df=None, mapping={}):
         with open(filepath, "r") as file:
             for _ in range(4):
 
@@ -114,8 +136,11 @@ class Retrieve:
 
             df = pd.read_csv(file, sep=r'\s+').convert_dtypes()
 
-            if filter_cords:
-                df = filter_by_atom_number(df, solute, bdp_central)
+        if filter_cords:
+            df = filter_by_atom_number(df, solute, bdp_central)
+        if reorder_data:
+            df = renumber_atoms_to_match(refrence_df, df, mapping)
+
 
         if self.multiple:
             self.data['Coordinates'] += [df]
@@ -320,11 +345,20 @@ class Analyze:
             data = retrieved_data[slu]
             self.All_solute_energy_diffs[slu], self.All_solute_coordinate_diffs[slu] = self._difference_calculator(data, self.Short_Solvents, use_angstroms, use_degrees)
 
-    def solute_differences(self, use_angstroms=False, use_degrees=False, bdp_central=""):
+    def solute_differences(self, use_angstroms=False, use_degrees=False, bdp_central="", mapping={}):
+        to_reorder = {'BDP-nitrophenyl':False,
+                      'BDP-phenyl':False,
+                      'BDP-PP-phenyl':True,
+                      'BDP-PP-phenyl_OMes_backward':True,
+                      'BDP-PP-phenyl_OMes_forward':True}
+
         solute_folders = {}
         for slu in self.Solutes:
             folder_path = os.path.join(self.All_Data_folder, slu)
             solute_folders[slu] = folder_path
+
+
+        refrence_df = None
 
         retrieved_data = {}
         for slv in self.Solvents:
@@ -333,7 +367,15 @@ class Analyze:
                 for file in os.listdir(solute_folders[slu]):
                     if file.endswith("_DATA.txt") and (slv in file):
                         solvent_file = os.path.join(solute_folders[slu], file)
-                        solute_data.regular_data(solvent_file, filter_cords=True, bdp_central=bdp_central, solute=slu)
+
+                        if not to_reorder[slu]:
+                            refrence_df = solute_data.regular_data(solvent_file,
+                                                     filter_cords=True, bdp_central=bdp_central, solute=slu)
+                        elif to_reorder[slu]:
+                            solute_data.regular_data(solvent_file,
+                                                     filter_cords=True, bdp_central=bdp_central, solute=slu,
+                                                     reorder_data=True, refrence_df=refrence_df, mapping=mapping)
+
                         break
             solute_data = solute_data.return_regular_data()
             retrieved_data[slv] = solute_data
@@ -461,7 +503,7 @@ class Analyze:
     def generate_latex_results_document(self,
                                         file_name="",
                                         differences="",
-                                        use_solvent_by_solute=True,
+                                        use_solvent_by_solute=False,
                                         generate_pdf=True,
                                         clean_files=True):
         if differences == "":
