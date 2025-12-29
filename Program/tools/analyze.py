@@ -114,8 +114,8 @@ class Retrieve:
         self.data = {'Energys':{},
                      'Coordinates':[]}
 
-        self.scan_data = {'fa':None,
-                          'fb':None}
+        self.data_scan = {'fa':[],
+                          'fb':[]}
 
     def regular_data(self, filepath,
                      filter_cords=False, bdp_central="", solute="",
@@ -157,12 +157,21 @@ class Retrieve:
             sections = file.read().strip().split("\n\n")
 
         df_fa = pd.read_csv(io.StringIO(sections[1]), sep=r'\s+').convert_dtypes()
-        self.scan_data['fa'] = df_fa
-
         df_fb = pd.read_csv(io.StringIO(sections[3]), sep=r'\s+').convert_dtypes()
-        self.scan_data['fb'] = df_fb
 
-        return self.scan_data
+        if self.multiple:
+            self.data_scan['fa'] += [df_fa]
+            self.data_scan['fb'] += [df_fb]
+
+
+        else:
+            self.data_scan['fa'] = df_fa
+            self.data_scan['fb'] = df_fb
+
+        return self.data_scan
+
+    def return_scan_data(self):
+        return self.data_scan
 
 class Analyze:
     def __init__(self,
