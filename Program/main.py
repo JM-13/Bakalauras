@@ -147,6 +147,7 @@ if to_extract_scan:
 
             Data_combined = {}
 
+            Base_S0 = 999999
             for direction in Data_files[solute][solvent]:
 
                 print(f"extracting {solute}-{solvent}-S1-fscan-{direction} file data")
@@ -163,29 +164,29 @@ if to_extract_scan:
                 if direction == 'fa':
 
                     Data_dataframe = pd.DataFrame({'S0':Energies[0],
-                                                'S1':Energies[1],
-                                                'D_fixed':RAD_fixed_vals,
-                                                'D_average':RAD_averages[1]})
-
-                    Base_S0 = Data_dataframe['S0'].min()
-                    Data_dataframe['S0'] = Data_dataframe['S0'] - Base_S0
-                    Data_dataframe['S1'] = Data_dataframe['S1'] - Base_S0
-
-                    Data_combined['fa'] = {'Fixed':[Fixed_val, RAD_averages[0]], 'Data':Data_dataframe}
-
+                                                   'S1':Energies[1],
+                                                   'D_fixed':RAD_fixed_vals,
+                                                   'D_average':RAD_averages[1]})
                 elif direction == 'fb':
 
                     Data_dataframe = pd.DataFrame({'S0':reversed(Energies[0]),
-                                                'S1':reversed(Energies[1]),
-                                                'D_fixed':reversed(RAD_fixed_vals),
-                                                'D_average':reversed(RAD_averages[1])})
+                                                   'S1':reversed(Energies[1]),
+                                                   'D_fixed':reversed(RAD_fixed_vals),
+                                                   'D_average':reversed(RAD_averages[1])})
 
+                if Data_dataframe['S0'].min() < Base_S0:
                     Base_S0 = Data_dataframe['S0'].min()
-                    Data_dataframe['S0'] = Data_dataframe['S0'] - Base_S0
-                    Data_dataframe['S1'] = Data_dataframe['S1'] - Base_S0
 
-                    Data_combined['fb'] = {'Fixed':[Fixed_val, RAD_averages[0]], 'Data':Data_dataframe}
+                Data_combined[direction] = {'Fixed':[Fixed_val, RAD_averages[0]],
+                                            'Data':Data_dataframe}
 
+            # Base_S0 = 0
+            Data_combined['fa']['Data']['S0'] = Data_combined['fa']['Data']['S0'] - Base_S0
+            Data_combined['fa']['Data']['S1'] = Data_combined['fa']['Data']['S1'] - Base_S0
+            Data_combined['fb']['Data']['S0'] = Data_combined['fb']['Data']['S0'] - Base_S0
+            Data_combined['fb']['Data']['S1'] = Data_combined['fb']['Data']['S1'] - Base_S0
+
+            Base_S0 = 999999
 
             with open(Save_file_path, 'w') as f:
                 f.write("From fa scan:\n")
