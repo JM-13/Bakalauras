@@ -434,62 +434,67 @@ class Analyze:
                 input("Press Enter to continue...")
                 os.system('clear')
 
-    def _rearrange_solvent_differences_by_solute(self):
-        missing_variables = 0
-        if not self.All_solute_energy_diffs:
-            print("Missing All_solute_energy_diffs")
-            missing_variables+=1
+    def _rearrange_differences(self, arrange_by="Solute"):
 
-        if not self.All_solute_coordinate_diffs:
-            print("Missing All_solute_coordinate_diffs")
-            missing_variables+=1
+        if arrange_by == "Solute":
+            sl_names = self.Solvents
+            sl_names_short = self.Short_Solvents
+            sl_sort_names = self.Solutes
+            sl_sort_names_short = self.Short_Solutes
+            all_energy_diffs = self.All_solute_energy_diffs
+            all_coordinate_diffs = self.All_solute_coordinate_diffs
 
-        if not self.Energy_Energy_types:
-            print("Missing Energy_Energy_types")
-            missing_variables+=1
+        elif arrange_by == "Solvent":
+            sl_names = self.Solutes
+            sl_names_short = self.Short_Solutes
+            sl_sort_names = self.Solvents
+            sl_sort_names_short = self.Short_Solvents
+            all_energy_diffs = self.All_solvent_energy_diffs
+            all_coordinate_diffs = self.All_solvent_coordinate_diffs
 
-        if not self.Coordinate_Energy_types:
-            print("Missing Coordinate_Energy_types")
-            missing_variables+=1
 
-        if missing_variables > 0:
-            print(f"Missing {missing_variables} required variables for _rearrange_solvent_differences_by_solute to run\nPlease run everything in the correct order!")
-            sys.exit(1)
-
-        All_energy_data = {slv: {} for slv in self.Solvents}
+        All_energy_data = {sln: {} for sln in sl_names}
         for energy in self.Energy_Energy_types:
-            for slv, sslv in zip(self.Solvents, self.Short_Solvents):
-                slv_columns = []
-                for slu in self.Solutes:
-                    slv_columns.append(self.All_solute_energy_diffs[slu][energy][sslv])
-                slv_df = pd.concat(slv_columns, axis=1)
-                slv_df.columns = self.Short_Solutes
-                slv_df['Mean'] = slv_df.mean(axis=1)
-                slv_df['Median'] = slv_df.drop(columns='Mean').median(axis=1)
-                All_energy_data[slv][energy] = slv_df
-        self.All_solute_energy_diffs_by_slv = All_energy_data
+            for sln, ssln in zip(sl_names, sl_names_short):
+                sl_columns = []
+                for sls in sl_sort_names:
+                    sl_columns.append(all_energy_diffs[sls][energy][ssln])
+                sl_df = pd.concat(sl_columns, axis=1)
+                sl_df.columns = sl_sort_names_short
+                sl_df['Mean'] = sl_df.mean(axis=1)
+                sl_df['Median'] = sl_df.drop(columns='Mean').median(axis=1)
+                All_energy_data[sln][energy] = sl_df
 
-        All_coordinate_data = {slv: {} for slv in self.Solvents}
-        for slv in All_coordinate_data:
-            All_coordinate_data[slv] = {e: {'MAX':{'R':None, 'A':None, 'D':None}, 'RMS':{'R':None, 'A':None, 'D':None}} for e in self.Coordinate_Energy_types}
+
+        All_coordinate_data = {sln: {} for sln in sl_names}
+        for sln in All_coordinate_data:
+            All_coordinate_data[sln] = {e: {'MAX':{'R':None, 'A':None, 'D':None}, 'RMS':{'R':None, 'A':None, 'D':None}} for e in self.Coordinate_Energy_types}
 
         for energy in self.Coordinate_Energy_types:
-            for slv, sslv in zip(self.Solvents, self.Short_Solvents):
+            for sln, ssln in zip(sl_names, sl_names_short):
                 for d_t in ['MAX', 'RMS']:
                     for c in ['R', 'A', 'D']:
-                        slv_columns = []
-                        for slu in self.Solutes:
-                            slv_columns.append(self.All_solute_coordinate_diffs[slu][energy][d_t][c][sslv])
-                        slv_df = pd.concat(slv_columns, axis=1)
-                        slv_df.columns = self.Short_Solutes
-                        slv_df['Mean'] = slv_df.mean(axis=1)
-                        slv_df['Median'] = slv_df.drop(columns='Mean').median(axis=1)
-                        All_coordinate_data[slv][energy][d_t][c] = slv_df
-        self.All_solute_coordinate_diffs_by_slv = All_coordinate_data
+                        sl_columns = []
+                        for sls in sl_sort_names:
+                            sl_columns.append(all_coordinate_diffs[sls][energy][d_t][c][ssln])
+                        sl_df = pd.concat(sl_columns, axis=1)
+                        sl_df.columns = sl_sort_names_short
+                        sl_df['Mean'] = sl_df.mean(axis=1)
+                        sl_df['Median'] = sl_df.drop(columns='Mean').median(axis=1)
+                        All_coordinate_data[sln][energy][d_t][c] = sl_df
+
+
+        if arrange_by == "Solute":
+            self.All_solute_energy_diffs_by_slv = All_energy_data
+            self.All_solute_coordinate_diffs_by_slv = All_coordinate_data
+
+        elif arrange_by == "Solvent":
+            self.All_solvent_energy_diffs_by_slu = All_energy_data
+            self.All_solvent_coordinate_diffs_by_slu = All_coordinate_data
 
     def display_solvent_differences_by_solute(self):
         pd.set_option('display.float_format', '{:.2e}'.format)
-        self._rearrange_solvent_differences_by_solute()
+        self._rearrange_differences(arrange_by="Solute")
 
         for slv in self.All_solute_energy_diffs_by_slv:
             for energy_type in self.All_solute_energy_diffs_by_slv[slv]:
@@ -509,10 +514,34 @@ class Analyze:
                 input("Press Enter to continue...")
                 os.system('clear')
 
+    def display_solute_differences_by_solvent(self):
+        pd.set_option('display.float_format', '{:.2e}'.format)
+        self._rearrange_differences(arrange_by="Solvent")
+
+        for slu in self.All_solvent_energy_diffs_by_slu:
+            for energy_type in self.All_solvent_energy_diffs_by_slu[slu]:
+                print(f'\n\t\t\t\tSolute: {slu}\n')
+                print(f'Energy: {energy_type}')
+                print(f'{self.All_solvent_energy_diffs_by_slu[slu][energy_type]}\n\n')
+
+                if energy_type in self.All_solvent_coordinate_diffs_by_slu[slu]:
+                    for t in self.All_solvent_coordinate_diffs_by_slu[slu][energy_type]:
+                        for coord in self.All_solvent_coordinate_diffs_by_slu[slu][energy_type][t]:
+                            print(f'Coordinate: {coord} {t}')
+                            print(f'{self.All_solvent_coordinate_diffs_by_slu[slu][energy_type][t][coord]}\n')
+                        print('\n')
+                else:
+                    print('No coordinates were messured for this energy\n')
+
+                input("Press Enter to continue...")
+                os.system('clear')
+
+
     def generate_latex_results_document(self,
                                         file_name="",
                                         differences="",
                                         use_solvent_by_solute=False,
+                                        use_solute_by_solvent=False,
                                         generate_pdf=True,
                                         clean_files=True):
         if differences == "":
@@ -527,14 +556,19 @@ class Analyze:
             pass
         elif differences == "Solute":
             if not file_name:
-                file_name_d = "Differences_between_solutes"
+                if use_solute_by_solvent:
+                    file_name_d = "Differences_between_solutes_by_solvent"
+                else:
+                    file_name_d = "Differences_between_solutes"
             pass
         else:
             print(f"Incorect differences value given: {differences}\ndifferences value needs to be one of the following:\n{"Solute"} - differences between solutes\n{"Solvent"} - differences between solvents")
             sys.exit(1)
 
         if use_solvent_by_solute:
-            self._rearrange_solvent_differences_by_solute()
+            self._rearrange_differences(arrange_by="Solute")
+        if use_solute_by_solvent:
+            self._rearrange_differences(arrange_by="Solvent")
 
         if not file_name:
             file_name = file_name_d
@@ -557,7 +591,13 @@ class Analyze:
 """
         for slv, slu in zip(self.Solvents, self.Solutes):
             if differences == "Solute":
-                page_caption = f"Differences in {slv}"
+                if use_solute_by_solvent:
+                    page_caption = f"{slu} differences"
+                    page_caption = page_caption.replace("_", r"\_")
+                else:
+                    page_caption = f"Differences in {slv}"
+                    page_caption = page_caption.replace("_", r"\_")
+
             elif differences == "Solvent":
                 if use_solvent_by_solute:
                     page_caption = f"{slv} differences"
@@ -580,7 +620,10 @@ class Analyze:
             # ---------- Energy tables ----------
             for i, energy in enumerate(self.Coordinate_Energy_types):
                 if differences == "Solute":
-                    df_energy = self.All_solvent_energy_diffs[slv][energy].copy()
+                    if use_solute_by_solvent:
+                        df_energy = self.All_solvent_energy_diffs_by_slu[slu][energy].copy()
+                    else:
+                        df_energy = self.All_solvent_energy_diffs[slv][energy].copy()
                 elif differences == "Solvent":
                     if use_solvent_by_solute:
                         df_energy = self.All_solute_energy_diffs_by_slv[slv][energy].copy()
@@ -608,7 +651,10 @@ class Analyze:
             for cord in ["R","A","D"]:
                 for i, energy in enumerate(self.Coordinate_Energy_types):
                     if differences == "Solute":
-                        df_rms = self.All_solvent_coordinate_diffs[slv][energy]['RMS'][cord].copy()
+                        if use_solute_by_solvent:
+                            df_rms = self.All_solvent_coordinate_diffs_by_slu[slu][energy]['RMS'][cord].copy()
+                        else:
+                            df_rms = self.All_solvent_coordinate_diffs[slv][energy]['RMS'][cord].copy()
                     elif differences == "Solvent":
                         if use_solvent_by_solute:
                             df_rms = self.All_solute_coordinate_diffs_by_slv[slv][energy]['RMS'][cord].copy()

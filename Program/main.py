@@ -268,6 +268,14 @@ if to_analyze:
             file_name = input("Please input a filename with no file type (if no name is given a default name will be used)\n")
             analasys.generate_latex_results_document(file_name=file_name, differences="Solute")
 
+        to_display_solute_diff_by_solvent = user_input_check("Display solute differences by solvent?")
+        if to_display_solute_diff_by_solvent:
+            analasys.display_solute_differences_by_solvent()
+
+        to_generate_latex = user_input_check("Do you want to save the differences to a pdf file?")
+        if to_generate_latex:
+            file_name = input("Please input a filename with no file type (if no name is given a default name will be used)\n")
+            analasys.generate_latex_results_document(file_name=file_name, differences="Solute", use_solute_by_solvent=True)
 
 
 
