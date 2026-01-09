@@ -21,14 +21,14 @@ Solute_to_shorten = {'BDP-nitrophenyl':'BDP-NPh',
 
 
 Graph_settings = {'label': list(Solvent_to_shorten.values()),
-                  'zorder':[],
-                  'alpha': [],
+                  'zorder':[2, 2, 2, 2, 2],
+                  'alpha': [0.4, 0.4, 0.4, 0.4, 0.4],
+                  'color': [],
 
-                  'color':     [],
                   'line_width':[],
                   'linestyle': [],
 
-                  'facecolors':[],
+                  'facecolors':['blue', 'orange', 'green', 'red', 'purple'],
                   'edgecolors':[],
                   'dot_size':  [],
                   'marker':    []
