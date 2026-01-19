@@ -9,7 +9,6 @@ from tools.catalogue_data import Catalogue
 from tools.extract_values import Extract
 from tools.analyze import Analyze
 
-
 Working_dir = os.getenv("PWD", os.getcwd())
 Data_folder = os.path.join(Working_dir, 'Data')
 os.makedirs(Data_folder, exist_ok=True)
@@ -180,7 +179,7 @@ if to_extract_scan:
                 Data_combined[direction] = {'Fixed':[Fixed_val, RAD_averages[0]],
                                             'Data':Data_dataframe}
 
-            # Base_S0 = 0
+            Base_S0 = 0
             Data_combined['fa']['Data']['S0'] = Data_combined['fa']['Data']['S0'] - Base_S0
             Data_combined['fa']['Data']['S1'] = Data_combined['fa']['Data']['S1'] - Base_S0
             Data_combined['fb']['Data']['S0'] = Data_combined['fb']['Data']['S0'] - Base_S0
@@ -218,14 +217,15 @@ if to_extract_data or to_extract_scan:
     print(f'\nAll data has been extracted and saved to folder {Data_folder}')
 
 
-to_analyze = user_input_check("Do you want to analyze the extracted data?")
+analasys = Analyze(Data_folder,
+                   c.difference_function,
+                   c.Solute_to_shorten.keys(),
+                   c.Solvent_to_shorten.keys(),
+                   c.Solute_to_shorten.values(),
+                   c.Solvent_to_shorten.values())
+
+to_analyze = user_input_check("Do you want to analyze the extracted regular data?")
 if to_analyze:
-    analasys = Analyze(Data_folder,
-                       c.difference_function,
-                       c.Solute_to_shorten.keys(),
-                       c.Solvent_to_shorten.keys(),
-                       c.Solute_to_shorten.values(),
-                       c.Solvent_to_shorten.values())
 
     to_use_angstroms = user_input_check("Convert distances to angstroms for the analasys?")
     to_use_degrees   = user_input_check("Convert angles to degrees for the analasys?")
@@ -277,9 +277,18 @@ if to_analyze:
             file_name = input("Please input a filename with no file type (if no name is given a default name will be used)\n")
             analasys.generate_latex_results_document(file_name=file_name, differences="Solute", use_solute_by_solvent=True)
 
+to_analyze_scan = user_input_check("Do you want to analyze the extracted scan data?")
+if to_analyze_scan:
+    to_display_graphs = user_input_check("Display energy plain graphs?")
+    to_save_combo_graphs = user_input_check("Do you want to save energy plain graphs?")
+    to_save_single_graphs = user_input_check("Do you want to save a separate energy plain graph for each combination of solute and solvent?")
 
+    analasys.Scan_Data(c.Scan_Graph_settings,
+                       show_graphs=to_display_graphs,
+                       save_combo_graphs=to_save_combo_graphs,
+                       save_single_graphs=to_save_single_graphs)
 
-
-
+    if to_save_single_graphs:
+        print('Single graphs saved to the Scan_graphs folder located in the Data folder')
 
 
