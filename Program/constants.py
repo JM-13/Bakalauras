@@ -16,6 +16,15 @@ Filename_to_Solvent = {'acet':'Acetone',
                        'thfu':'TetraHydroFuran',
                        'tolu':'Toluene'}
 
+# #Measured in Polarity Index (P´)"
+# Solvent_to_Polarity = {'Toluene':2.4,
+#                        'TetraHydroFuran':4.0,
+#                        'Acetone':5.1,
+#                        'Methanol':5.1,
+#                        'DiMethylFormamide':6.4,
+#                        'DiMethylSulfoxide':7.2,
+#                        }
+
 Filename_to_Solute = {'bdp-pnphen' :'BDP-nitrophenyl',
                       'bdp-phenyl' :'BDP-phenyl',
                       'ppp'        :'BDP-PP-phenyl',
@@ -65,3 +74,59 @@ Atom_number_conversion = { 1:19,
                           19:18,
                           20:20,
                           21:11}
+
+Scan_Graph_settings = {
+    'Line':{   'label': [],
+               'zorder':[3, 3, 3, 3, 3],
+               'alpha': [0.8, 0.8, 0.8, 0.8, 0.8],
+
+               'color': ['blue', 'orange', 'green', 'red', 'purple'],
+               'linewidths':[],
+               'linestyle': []
+                        },
+
+    'Scatter':{'label': list(Solvent_to_shorten.values()),
+               'zorder':[4, 4, 4, 4, 4],
+               'alpha': [0.8, 0.8, 0.8, 0.8, 0.8],
+
+               'facecolors':['blue', 'orange', 'green', 'red', 'purple'],
+               's':         [15,15,15,15,15],
+               'edgecolors':['black', 'black', 'black', 'black', 'black'],
+               'linewidths':[0.5,0.5,0.5,0.5,0.5],
+               'marker':    []
+                        },
+
+    'Minima_location_dots':{'label': [],
+                            'zorder':[5, 5, 5, 5, 5],
+                            'alpha': [],
+
+                            'facecolors':['white', 'white', 'white', 'white', 'white'],
+                            's':         [15,15,15,15,15],
+                            'edgecolors':['black', 'black', 'black', 'black', 'black'],
+                            'linewidths':[0.5,0.5,0.5,0.5,0.5],
+                            'marker':    []
+                             },
+
+    'Minima_energy_lines':{ 'label': [],
+                            'zorder':[2, 2, 2, 2, 2],
+                            'alpha': [],
+
+                            'color': ['blue', 'orange', 'green', 'red', 'purple'],
+                            'linewidths':[],
+                            'linestyle': ['--','--','--','--','--']
+                             },
+
+    'Fit_curvyness':{'S0':14,
+                     'S1':12},
+
+    'Xlimits':[-60, 10],
+
+    'Ylimits':{'S0':{'start':[0.000,0.000,0.000,0.000,0.000],
+                     'stop' :[0.033,0.033,0.026,0.026,0.026],
+                     'step' :[0.003,0.003,0.002,0.002,0.002]},
+
+               'S1':{'start':[0.093,0.097,0.082,0.076,0.076],
+                     'stop' :[0.102,0.106,0.094,0.089,0.089],
+                     'step' :[0.001,0.001,0.001,0.001,0.001]}
+              }
+}

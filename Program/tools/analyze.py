@@ -7,6 +7,12 @@ import time
 import subprocess
 import sys
 
+import matplotlib.pyplot as plt
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, DotProduct, WhiteKernel
+import warnings
+from sklearn.exceptions import ConvergenceWarning
+
 def degree_correction(df1, df2, scale=10000):
     # print(f'df1:\n{df1}')
     # print(f'\ndf2:\n{df2}')
@@ -714,3 +720,280 @@ class Analyze:
         else:
             print(f'PDF file created at location {file_full_path}')
 
+    def Scan_Data(self,
+                  graph_config,
+                  print_min_energy_data=True,
+                  show_graphs=True,
+                  save_combo_graphs=False,
+                  save_single_graphs=False):
+
+        warnings.filterwarnings("ignore", category=ConvergenceWarning)
+
+        Scan_graph_folder = os.path.join(self.All_Data_folder, 'Scan_graphs')
+        Scan_graph_single_graphs_folder = os.path.join(Scan_graph_folder, 'Separate_graphs')
+        Scan_graph_single_graphs_folder_S0 = os.path.join(Scan_graph_single_graphs_folder, 'S0')
+        Scan_graph_single_graphs_folder_S1 = os.path.join(Scan_graph_single_graphs_folder, 'S1')
+
+        os.makedirs(Scan_graph_folder, exist_ok=True)
+        os.makedirs(Scan_graph_single_graphs_folder, exist_ok=True)
+        os.makedirs(Scan_graph_single_graphs_folder_S0, exist_ok=True)
+        os.makedirs(Scan_graph_single_graphs_folder_S1, exist_ok=True)
+
+        for num_slu, slu in enumerate(self.Solutes):
+            folder_path = os.path.join(self.All_Data_folder, slu)
+
+            scan_file_data = Retrieve(multiple=True)
+
+            for slv in self.Solvents:
+                for file in os.listdir(folder_path):
+                    if file.endswith("_SCAN.txt") and (slv in file):
+                        filepath = os.path.join(folder_path, file)
+
+                        scan_file_data.scan_data(filepath)
+
+            scan_file_data = scan_file_data.return_scan_data()
+
+            min_S0 = 99999
+            for num, slv in enumerate(self.Solvents):
+                data = pd.concat([scan_file_data['fa'][num], scan_file_data['fb'][num]])
+                if min_S0 > data['S0'].min():
+                    min_S0 = data['S0'].min()
+
+            fig_S0, ax_S0 =   plt.subplots()
+            fig_S1, ax_S1 =   plt.subplots()
+
+            y_value_ranges = {'S0':{'min': 99999,
+                                    'max':-99999},
+                            'S1':{'min': 99999,
+                                    'max':-99999}}
+
+            print(f'\nDoing {slu} scan data analasys')
+            for num, slv in enumerate(self.Solvents):
+
+                kwargs_line = {}
+                kwargs_scatter = {}
+                kwargs_location_line = {}
+                kwargs_energy_line = {}
+
+                for kwa in graph_config['Line']:
+                    if graph_config['Line'][kwa]:
+                        kwargs_line[kwa] = graph_config['Line'][kwa][num]
+
+
+                for kwa in graph_config['Scatter']:
+                    if graph_config['Scatter'][kwa]:
+                        kwargs_scatter[kwa] = graph_config['Scatter'][kwa][num]
+
+
+                for kwa in graph_config['Minima_location_dots']:
+                    if graph_config['Minima_location_dots'][kwa]:
+                        kwargs_location_line[kwa] = graph_config['Minima_location_dots'][kwa][num]
+
+
+                for kwa in graph_config['Minima_energy_lines']:
+                    if graph_config['Minima_energy_lines'][kwa]:
+                        kwargs_energy_line[kwa] = graph_config['Minima_energy_lines'][kwa][num]
+
+                fa_data = scan_file_data['fa'][num]
+                fa_data['S0'] = fa_data['S0'] - min_S0
+                fa_data['S1'] = fa_data['S1'] - min_S0
+
+                fb_data = scan_file_data['fb'][num]
+                fb_data['S0'] = fb_data['S0'] - min_S0
+                fb_data['S1'] = fb_data['S1'] - min_S0
+
+                data = pd.concat([fa_data, fb_data])
+
+                degree_axis_values_average = np.array(data['D_average'])
+                indices = np.argsort(degree_axis_values_average)
+
+                degree_axis_values_fixed   = np.array(data['D_fixed'])[indices]
+                degree_axis_values_average = np.array(data['D_average'])[indices]
+                energy_axis_values_S0 = np.array(data['S0'])[indices]
+                energy_axis_values_S1 = np.array(data['S1'])[indices]
+
+                sorted_data = pd.DataFrame({
+                    'D_fixed':degree_axis_values_fixed,
+                    'D_average':degree_axis_values_average,
+                    'S0':energy_axis_values_S0,
+                    'S1':energy_axis_values_S1
+                    })
+
+                min_S0_row  = sorted_data.nsmallest(1, 'S0').to_dict()
+                energy_S0  = round(list(min_S0_row['S0'].values())[0], 4)
+                S0_location_fixed = round(list(min_S0_row['D_fixed'].values())[0], 4)
+                S0_location_average = round(list(min_S0_row['D_average'].values())[0], 4)
+
+                min_S1m_row = sorted_data.nsmallest(1, 'S1').to_dict()
+                energy_S1m = round(list(min_S1m_row['S1'].values())[0], 4)
+                S1m_location_fixed = round(list(min_S1m_row['D_fixed'].values())[0], 4)
+                S1m_location_average = round(list(min_S1m_row['D_average'].values())[0], 4)
+
+                max_S1_row  = sorted_data.nlargest(1, 'S1').to_dict()
+                max_S1_index = list(max_S1_row['S1'].keys())[0]
+                min_S1r_row = sorted_data.iloc[max_S1_index:].nsmallest(1, 'S1').to_dict()
+                energy_S1r = round(list(min_S1r_row['S1'].values())[0], 4)
+                S1r_location_fixed = round(list(min_S1r_row['D_fixed'].values())[0], 4)
+                S1r_location_average = round(list(min_S1r_row['D_average'].values())[0], 4)
+
+                if print_min_energy_data:
+                    print(f'    Minimum energies in {slv}:')
+                    print(f'        S0  : energy = {energy_S0}, fixed_cord = {S0_location_fixed}, average_cord = {S0_location_average}')
+                    print(f'        S1m : energy = {energy_S1m}, fixed_cord = {S1m_location_fixed}, average_cord = {S1m_location_average}')
+                    print(f'        S1r : energy = {energy_S1r}, fixed_cord = {S1r_location_fixed}, average_cord = {S1r_location_average}')
+
+                #S0 plots /////////////////////////
+                xdata_S0  = np.array(sorted_data['D_average'])
+                x_plot_S0 = np.linspace(xdata_S0.min(), xdata_S0.max(), 500)
+                ydata_S0  = np.array(sorted_data['S0'])
+
+                RBF_bounds_S0 = RBF(length_scale_bounds=(graph_config['Fit_curvyness']['S0'], 50))
+                kernel_S0 = RBF_bounds_S0 + WhiteKernel(noise_level_bounds=(1e-8, 1e5))
+                gp_S0 = GaussianProcessRegressor(kernel=kernel_S0, normalize_y=True)
+                gp_S0.fit(xdata_S0.reshape(-1,1), ydata_S0)
+
+                y_mean_S0, y_std_S0 = gp_S0.predict(x_plot_S0.reshape(-1,1), return_std=True)
+
+                if ydata_S0.min() < y_value_ranges['S0']['min']:
+                    y_value_ranges['S0']['min'] = ydata_S0.min()
+
+                if ydata_S0.max() > y_value_ranges['S0']['max']:
+                    y_value_ranges['S0']['max'] = ydata_S0.max()
+
+                ax_S0.scatter(xdata_S0, ydata_S0, **kwargs_scatter)
+                ax_S0.plot(x_plot_S0, y_mean_S0, **kwargs_line)
+
+                S0_location = list(min_S0_row['D_average'].values())[0]
+                S0_energy   = list(min_S0_row['S0'].values())[0]
+                ax_S0.scatter([S0_location], [S0_energy], **kwargs_location_line)
+                # ax_S0.plot([graph_config['Xlimits'][0], S0_location], [S0_energy, S0_energy], **kwargs_energy_line)
+
+                    #Single graph
+                if save_single_graphs:
+                    fig, ax = plt.subplots()
+                    ax.scatter(xdata_S0, ydata_S0, **kwargs_scatter)
+                    ax.plot(x_plot_S0, y_mean_S0, **kwargs_line)
+                    ax.scatter([S0_location], [S0_energy], **kwargs_location_line)
+                    ax.grid(True)
+                    ax.legend(loc="upper left")
+                    ax.set_title(f"{slu} S0 plane")
+                    ax.set(xlabel = "Degrees",
+                        ylabel = "Energy",
+                        xlim=(graph_config['Xlimits'][0], graph_config['Xlimits'][1]),
+                        xticks=np.arange(graph_config['Xlimits'][0], graph_config['Xlimits'][1]+1, 5)
+                        )
+                    fig_save_location = os.path.join(Scan_graph_single_graphs_folder_S0, f"{slu}_in_{slv}_S0_plane")
+                    fig.savefig(fig_save_location, dpi=600, bbox_inches='tight')
+                    plt.close(fig)
+                    # print(f'    Saved {slu} in {slv} S0 plane graph to {fig_save_location}')
+
+                #S1 plots /////////////////////////
+                S1_limit = fb_data['S1'].max() #need smarter filter maybe?
+                filterred_S1 = []
+                filterred_Da = []
+                for x,y in zip(sorted_data['D_average'], sorted_data['S1']):
+                    if y <= S1_limit:
+                        filterred_Da.append(x)
+                        filterred_S1.append(y)
+                filterred_S1 = np.array(filterred_S1)
+                filterred_Da = np.array(filterred_Da)
+
+                xdata_S1 = filterred_Da
+                x_plot_S1 = np.linspace(xdata_S1.min(), xdata_S1.max(), 500)
+                ydata_S1 = filterred_S1
+
+                RBF_bounds_S1 = RBF(length_scale_bounds=(graph_config['Fit_curvyness']['S1'], 50))
+                kernel_S1 = RBF_bounds_S1 + WhiteKernel(noise_level_bounds=(1e-8, 1e5))
+                gp_S1 = GaussianProcessRegressor(kernel=kernel_S1, normalize_y=True)
+                gp_S1.fit(xdata_S1.reshape(-1,1), ydata_S1)
+
+                y_mean_S1, y_std_S1 = gp_S1.predict(x_plot_S1.reshape(-1,1), return_std=True)
+
+                if sorted_data['S1'].min() < y_value_ranges['S1']['min']:
+                    y_value_ranges['S1']['min'] = sorted_data['S1'].min()
+
+                if sorted_data['S1'].max() > y_value_ranges['S1']['max']:
+                    y_value_ranges['S1']['max'] = sorted_data['S1'].max()
+
+                ax_S1.scatter(sorted_data['D_average'], sorted_data['S1'], **kwargs_scatter)
+                ax_S1.plot(x_plot_S1, y_mean_S1, **kwargs_line)
+
+                S1m_location = list(min_S1m_row['D_average'].values())[0]
+                S1m_energy   = list(min_S1m_row['S1'].values())[0]
+                ax_S1.scatter([S1m_location], [S1m_energy], **kwargs_location_line)
+                # ax_S1.plot([graph_config['Xlimits'][0], S1m_location], [S1m_energy, S1m_energy], **kwargs_energy_line)
+
+                S1r_location = list(min_S1r_row['D_average'].values())[0]
+                S1r_energy   = list(min_S1r_row['S1'].values())[0]
+                ax_S1.scatter([S1r_location], [S1r_energy], **kwargs_location_line)
+                # ax_S1.plot([graph_config['Xlimits'][1], S1r_location], [S1r_energy, S1r_energy], **kwargs_energy_line)
+
+                    #Single graph
+                if save_single_graphs:
+                    fig, ax = plt.subplots()
+                    ax.scatter(sorted_data['D_average'], sorted_data['S1'], **kwargs_scatter)
+                    ax.plot(x_plot_S1, y_mean_S1, **kwargs_line)
+                    ax.scatter([S1m_location], [S1m_energy], **kwargs_location_line)
+                    ax.scatter([S1r_location], [S1r_energy], **kwargs_location_line)
+                    ax.grid(True)
+                    ax.legend(loc="upper left")
+                    ax.set_title(f"{slu} S1 plane")
+                    ax.set(xlabel = "Degrees",
+                        ylabel = "Energy",
+                        xlim=(graph_config['Xlimits'][0], graph_config['Xlimits'][1]),
+                        xticks=np.arange(graph_config['Xlimits'][0], graph_config['Xlimits'][1]+1, 5)
+                        )
+                    fig_save_location = os.path.join(Scan_graph_single_graphs_folder_S1, f"{slu}_in_{slv}_S1_plane")
+                    fig.savefig(fig_save_location, dpi=600, bbox_inches='tight')
+                    plt.close(fig)
+                    # print(f'    Saved {slu} in {slv} S1 plane graph to {fig_save_location}')
+
+            #S0 plot config
+            y_start = graph_config['Ylimits']['S0']['start'][num_slu]
+            y_stop  = graph_config['Ylimits']['S0']['stop'][num_slu]
+            y_step  = graph_config['Ylimits']['S0']['step'][num_slu]
+            yticks = np.arange(y_start, y_stop+y_step/10, y_step)
+
+            ax_S0.grid(True)
+            ax_S0.legend(loc="upper left")
+            ax_S0.set_title(f"{slu} S0 plane")
+            ax_S0.set(xlabel = "Degrees",
+                    ylabel = "Energy",
+                    xlim=(graph_config['Xlimits'][0], graph_config['Xlimits'][1]),
+                    xticks=np.arange(graph_config['Xlimits'][0], graph_config['Xlimits'][1]+1, 5),
+                    ylim=(y_start-y_step/2, y_stop),
+                    yticks=yticks
+                    )
+
+            if save_combo_graphs:
+                fig_S0_save_location = os.path.join(Scan_graph_folder, f"{slu}_S0_planes")
+                fig_S0.savefig(fig_S0_save_location, dpi=600, bbox_inches='tight')
+                print(f'Saved {slu} S0 planes graph to {fig_S0_save_location}')
+
+            #S1 plot config
+            y_start = graph_config['Ylimits']['S1']['start'][num_slu]
+            y_stop  = graph_config['Ylimits']['S1']['stop'][num_slu]
+            y_step  = graph_config['Ylimits']['S1']['step'][num_slu]
+            yticks = np.arange(y_start, y_stop+y_step/10, y_step)
+
+            ax_S1.grid(True)
+            ax_S1.legend(loc="upper left")
+            ax_S1.set_title(f"{slu} S1 plane")
+            ax_S1.set(xlabel = "Degrees",
+                    ylabel = "Energy",
+                    xlim=(graph_config['Xlimits'][0], graph_config['Xlimits'][1]),
+                    xticks=np.arange(graph_config['Xlimits'][0], graph_config['Xlimits'][1]+1, 5),
+                    ylim=(y_start-y_step/2, y_stop),
+                    yticks=yticks
+                    )
+
+            if save_combo_graphs:
+                fig_S1_save_location = os.path.join(Scan_graph_folder, f"{slu}_S1_planes")
+                fig_S1.savefig(fig_S1_save_location, dpi=600, bbox_inches='tight')
+                print(f'Saved {slu} S1 planes graph to {fig_S1_save_location}')
+
+            if show_graphs:
+                plt.show()
+
+            plt.close(fig_S0)
+            plt.close(fig_S1)
