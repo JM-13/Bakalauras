@@ -289,6 +289,6 @@ if to_analyze_scan:
                        save_single_graphs=to_save_single_graphs)
 
     if to_save_single_graphs:
-        print('Single graphs saved to the Scan_graphs folder located in the Data folder')
+        print('\nSingle graphs saved to the Scan_graphs folder located in the Data folder')
 
 

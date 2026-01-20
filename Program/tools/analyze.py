@@ -968,7 +968,7 @@ class Analyze:
             if save_combo_graphs:
                 fig_S0_save_location = os.path.join(Scan_graph_folder, f"{slu}_S0_planes")
                 fig_S0.savefig(fig_S0_save_location, dpi=600, bbox_inches='tight')
-                print(f'Saved {slu} S0 planes graph to {fig_S0_save_location}')
+                print(f'Saved {slu} S0 planes graph to {fig_S0_save_location}.png')
 
             #S1 plot config
             y_start = graph_config['Ylimits']['S1']['start'][num_slu]
@@ -990,7 +990,7 @@ class Analyze:
             if save_combo_graphs:
                 fig_S1_save_location = os.path.join(Scan_graph_folder, f"{slu}_S1_planes")
                 fig_S1.savefig(fig_S1_save_location, dpi=600, bbox_inches='tight')
-                print(f'Saved {slu} S1 planes graph to {fig_S1_save_location}')
+                print(f'Saved {slu} S1 planes graph to {fig_S1_save_location}.png')
 
             if show_graphs:
                 plt.show()
