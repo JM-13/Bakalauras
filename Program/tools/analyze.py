@@ -876,16 +876,16 @@ class Analyze:
                     ax.scatter([S0_location], [S0_energy], **kwargs_location_line)
                     ax.grid(True)
                     ax.legend(loc="upper left")
-                    ax.set_title(f"{slu} S0 plane")
+                    ax.set_title(f"{slu} S0 plain")
                     ax.set(xlabel = "Degrees",
                         ylabel = "Energy",
                         xlim=(graph_config['Xlimits'][0], graph_config['Xlimits'][1]),
                         xticks=np.arange(graph_config['Xlimits'][0], graph_config['Xlimits'][1]+1, 5)
                         )
-                    fig_save_location = os.path.join(Scan_graph_single_graphs_folder_S0, f"{slu}_in_{slv}_S0_plane")
+                    fig_save_location = os.path.join(Scan_graph_single_graphs_folder_S0, f"{slu}_in_{slv}_S0_plain")
                     fig.savefig(fig_save_location, dpi=600, bbox_inches='tight')
                     plt.close(fig)
-                    # print(f'    Saved {slu} in {slv} S0 plane graph to {fig_save_location}')
+                    # print(f'    Saved {slu} in {slv} S0 plain graph to {fig_save_location}')
 
                 #S1 plots /////////////////////////
                 S1_limit = fb_data['S1'].max() #need smarter filter maybe?
@@ -937,16 +937,16 @@ class Analyze:
                     ax.scatter([S1r_location], [S1r_energy], **kwargs_location_line)
                     ax.grid(True)
                     ax.legend(loc="upper left")
-                    ax.set_title(f"{slu} S1 plane")
+                    ax.set_title(f"{slu} S1 plain")
                     ax.set(xlabel = "Degrees",
                         ylabel = "Energy",
                         xlim=(graph_config['Xlimits'][0], graph_config['Xlimits'][1]),
                         xticks=np.arange(graph_config['Xlimits'][0], graph_config['Xlimits'][1]+1, 5)
                         )
-                    fig_save_location = os.path.join(Scan_graph_single_graphs_folder_S1, f"{slu}_in_{slv}_S1_plane")
+                    fig_save_location = os.path.join(Scan_graph_single_graphs_folder_S1, f"{slu}_in_{slv}_S1_plain")
                     fig.savefig(fig_save_location, dpi=600, bbox_inches='tight')
                     plt.close(fig)
-                    # print(f'    Saved {slu} in {slv} S1 plane graph to {fig_save_location}')
+                    # print(f'    Saved {slu} in {slv} S1 plain graph to {fig_save_location}')
 
             #S0 plot config
             y_start = graph_config['Ylimits']['S0']['start'][num_slu]
@@ -956,7 +956,7 @@ class Analyze:
 
             ax_S0.grid(True)
             ax_S0.legend(loc="upper left")
-            ax_S0.set_title(f"{slu} S0 plane")
+            ax_S0.set_title(f"{slu} S0 plain")
             ax_S0.set(xlabel = "Degrees",
                     ylabel = "Energy",
                     xlim=(graph_config['Xlimits'][0], graph_config['Xlimits'][1]),
@@ -966,9 +966,9 @@ class Analyze:
                     )
 
             if save_combo_graphs:
-                fig_S0_save_location = os.path.join(Scan_graph_folder, f"{slu}_S0_planes")
+                fig_S0_save_location = os.path.join(Scan_graph_folder, f"{slu}_S0_plains")
                 fig_S0.savefig(fig_S0_save_location, dpi=600, bbox_inches='tight')
-                print(f'Saved {slu} S0 planes graph to {fig_S0_save_location}.png')
+                print(f'Saved {slu} S0 plains graph to {fig_S0_save_location}.png')
 
             #S1 plot config
             y_start = graph_config['Ylimits']['S1']['start'][num_slu]
@@ -978,7 +978,7 @@ class Analyze:
 
             ax_S1.grid(True)
             ax_S1.legend(loc="upper left")
-            ax_S1.set_title(f"{slu} S1 plane")
+            ax_S1.set_title(f"{slu} S1 plain")
             ax_S1.set(xlabel = "Degrees",
                     ylabel = "Energy",
                     xlim=(graph_config['Xlimits'][0], graph_config['Xlimits'][1]),
@@ -988,9 +988,9 @@ class Analyze:
                     )
 
             if save_combo_graphs:
-                fig_S1_save_location = os.path.join(Scan_graph_folder, f"{slu}_S1_planes")
+                fig_S1_save_location = os.path.join(Scan_graph_folder, f"{slu}_S1_plains")
                 fig_S1.savefig(fig_S1_save_location, dpi=600, bbox_inches='tight')
-                print(f'Saved {slu} S1 planes graph to {fig_S1_save_location}.png')
+                print(f'Saved {slu} S1 plains graph to {fig_S1_save_location}.png')
 
             if show_graphs:
                 plt.show()
